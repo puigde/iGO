@@ -2,7 +2,6 @@
 
 No perdeu més el temps: iGo us ensenya el camí més ràpid per córrer com una llebre! 🐰🚘
 
-
 ## Introducció
 
 Aquesta pàgina descriu el projecte iGo, que correspon a la segona pràctica del
@@ -11,7 +10,7 @@ curs 2021 d'AP2 al GCED.
 La vostra tasca consisteix en implementar en Python un Bot de Telegram que
 permeti, dins de la ciutat de Barcelona, guiar els usuaris des de la seva
 posició actual fins a la seva destinació pel camí més ràpid en cotxe,
-utilitzant el novedós concepte d'*itime* (temps intel·ligent) que té en compte
+utilitzant el novedós concepte d'_itime_ (temps intel·ligent) que té en compte
 l'estat del trànsit en temps real en certs trams de la ciutat.
 
 Per fer aquesta pràctica, haureu d'obtenir dades de diferents proveïdors
@@ -19,35 +18,32 @@ i entrellaçar-les mutuament. En particular, utilitzareu:
 
 - El mapa de Barcelona d'[Open Street Map](https://www.openstreetmap.org). 🧭
 
-- La [informació sobre l'estat del trànsit als trams](https://opendata-ajuntament.barcelona.cat/data/ca/dataset/trams)  de Barcelona. 🐌
+- La [informació sobre l'estat del trànsit als trams](https://opendata-ajuntament.barcelona.cat/data/ca/dataset/trams) de Barcelona. 🐌
 
-- La [relació de trams de la via pública](https://opendata-ajuntament.barcelona.cat/data/ca/dataset/transit-relacio-trams)  de Barcelona. 🛣
+- La [relació de trams de la via pública](https://opendata-ajuntament.barcelona.cat/data/ca/dataset/transit-relacio-trams) de Barcelona. 🛣
 
 Afortunadament, existeixen algunes llibreries ben documentades que us facilitaran molt la feina:
 
 - Per utilitzar els Open Street Maps utilitzareu la llibreria [OSMnx](https://geoffboeing.com/2016/11/osmnx-python-street-networks/), que funciona
-damunt de [NetworkX](https://networkx.github.io/documentation/stable/tutorial.html).
+  damunt de [NetworkX](https://networkx.github.io/documentation/stable/tutorial.html).
 
 - Per llegir les dades del Servei de dades obertes de l'Ajuntament de Barcelona,
-haureu de llegir fitxers en format `csv`, tot utilitzant el mòdul estàndard de Python
-[csv](https://docs.python.org/3/library/csv.html).
+  haureu de llegir fitxers en format `csv`, tot utilitzant el mòdul estàndard de Python
+  [csv](https://docs.python.org/3/library/csv.html).
 
 - Els mapes que mostrareu els generareu amb [`staticmap`](https://github.com/komoot/staticmap), una llibreria de
-Python que es connecta a Open Street Maps per generar mapes amb línies i marcadors.
+  Python que es connecta a Open Street Maps per generar mapes amb línies i marcadors.
 
 - Per escriure el Bot de Telegram podeu utilitzar
-[aquesta lliçó](https://lliçons.jutge.org/python/telegram.html).
-
-
-
+  [aquesta lliçó](https://lliçons.jutge.org/python/telegram.html).
 
 ## Arquitectura del sistema
 
 Els sistema consta de dos mòduls:
 
 - `igo.py` conté tot el codi i estructures de dades relacionats amb
-l'adquisició i l'enmagatzematge de grafs corresponents a mapes, congestions i
-càlculs de rutes.  Aquest mòdul no en sap res del bot.
+  l'adquisició i l'enmagatzematge de grafs corresponents a mapes, congestions i
+  càlculs de rutes. Aquest mòdul no en sap res del bot.
 
 - `bot.py` conté tot el codi relacionat amb el bot de Telegram i utilitza el
   mòdul `igo`. La seva tasca és reaccionar a les comandes dels usuaris per poder-los guiar.
@@ -56,14 +52,13 @@ La raó per separar el bot de la resta de funcionalitats és poder adaptar
 fàcilment el projecte a noves plataformes en el futur (web, whatsapp…), quan aquest triomfi i
 tots plegats ens fem rics! 🤑
 
-
 ## Funcionalitat del mòdul `igo`
 
-Heu de dissenyar el mòdul `igo`  per tal contingui tot el codi relacionat amb
+Heu de dissenyar el mòdul `igo` per tal contingui tot el codi relacionat amb
 l'adquisició, l'enmagatzematge i la consulta dels grafs de carrers de la
 ciutat, dels seus trams, i del trànsit en aquests trams. A més, aquest mòdul
 ha de ser capaç de calcular camins mínims entre parells de punts a la ciutat,
-tot utilitzant el concepte d'*itime* que més tard es concreta. Aquest mòdul
+tot utilitzant el concepte d'_itime_ que més tard es concreta. Aquest mòdul
 també ha de ser capaç de generar imatges amb els camins mínims que s'han
 calculat.
 
@@ -106,26 +101,25 @@ def test():
     plot_path(igraph, ipath, SIZE)
 ```
 
-
 Per tal de predir el camí més ràpid entre dos punts, iGo utilitza un concepte de
-temps intel·ligent anomenat *itime*. Aquest concepte apareix de la integració de
+temps intel·ligent anomenat _itime_. Aquest concepte apareix de la integració de
 diferents dades disponibles a les dades obertes que el projecte utilitza:
 
 - Velocitat i llargada de cada carrer al graf d'OSMnx: Cada aresta del graf de la ciutat té
-un atribut `speed` que indica la velocitat màxima en aquella aresta i un atribut
-`length` que indica la seva llargada. Per tant, és fàcil deduir el temps necessari per
-recórrer aquella aresta en condicions de circulació òptima.
+  un atribut `speed` que indica la velocitat màxima en aquella aresta i un atribut
+  `length` que indica la seva llargada. Per tant, és fàcil deduir el temps necessari per
+  recórrer aquella aresta en condicions de circulació òptima.
 
 - La relació de trams de la via pública de la ciutat de Barcelona
-defineix un conjunt de trams amb les artèries de circulació més importants de la ciutat.
-Cada tram ve definit per una seqüència de segments, dels quals es dónen les coordenades
-dels seus extrems. Al codi anterior, els trams es corresponen a les *highways*: malgrat
-que no siguin autopistes, solen ser pistes ràpides a la ciutat.
+  defineix un conjunt de trams amb les artèries de circulació més importants de la ciutat.
+  Cada tram ve definit per una seqüència de segments, dels quals es dónen les coordenades
+  dels seus extrems. Al codi anterior, els trams es corresponen a les _highways_: malgrat
+  que no siguin autopistes, solen ser pistes ràpides a la ciutat.
 
 - La informació sobre l'estat del trànsit als trams de la ciutat de Barcelona
-dóna la congestió existent a cadascun dels trams. Aquest estat
-pot ser: sense dades, molt fluid, fluid, dens, molt dens, congestió, tallat.
-Aquesta informació s'actualitza cada cinc minuts.
+  dóna la congestió existent a cadascun dels trams. Aquest estat
+  pot ser: sense dades, molt fluid, fluid, dens, molt dens, congestió, tallat.
+  Aquesta informació s'actualitza cada cinc minuts.
 
 Malauradament, la informació dels trams que ens proporciona l'ajuntament no quadra
 completament amb els carrers d'OSM... I tampoc hi ha informació de la congestió
@@ -138,7 +132,7 @@ sobre el qual es calcularan els camins mínims.
 La forma de propagar les congestions és la següent: Per a cada segment de cada
 tram pel qual es disposi d'informació sobre congestió, es buscaràn els dos
 nodes del graf que siguin més propers als extrems d'aquests segments, i es
-trobarà  el camí amb distància mínima per anar entre ambdós en el graf. A tots
+trobarà el camí amb distància mínima per anar entre ambdós en el graf. A tots
 els arcs d'aquest camí se'ls imputarà la congestió del tram.
 
 A més, **opcionalment**, també podeu afegir un retard a cada cruïlla de carrers:
@@ -146,18 +140,17 @@ Aquest retard hauria de ser petit si la cruïlla s'atravessa del dret (gir de
 menys de 15°, diguem) i hauria de ser més gran si cal girar a la cruïlla
 (gir de més de 15°). A més, també ho podeu millorat tenint en compte que
 girar cap a l'esquerra sol ser més lent que girar cap a la dreta. El grafs
-d'OSMnx tenen atributs amb l'angle de les arestes (*bearings*) que us poden
+d'OSMnx tenen atributs amb l'angle de les arestes (_bearings_) que us poden
 ser útils per això. En aquest cas és probable que us convingui modificar
 la topologia (nodes i arcs) del graf.
 
-Evidentment, cada implementació dels *itime* tindrà uns paràmetres associats
+Evidentment, cada implementació dels _itime_ tindrà uns paràmetres associats
 que vosaltres haureu de definir i encapsular de forma adient (amb ús de
-constants o funcions, per exemple).  Com s'ha vist al programa d'exemple, és
-raonable oferir una funció (com ara `build_igraph`) que s'encarregui  de
+constants o funcions, per exemple). Com s'ha vist al programa d'exemple, és
+raonable oferir una funció (com ara `build_igraph`) que s'encarregui de
 calcular el graf amb atributs "intel·ligents". És reponsabilitat vostra
-proposar, implementar i documentar una bona forma de calcular l'*itime* i els
+proposar, implementar i documentar una bona forma de calcular l'_itime_ i els
 paràmetres dels quals depengui, basant-vos en les dades disponibles.
-
 
 ## Funcionalitat del mòdul `bot`
 
@@ -167,21 +160,20 @@ El bot de Telegram ha de donar suport a les comandes següents:
 - `/help`: ofereix ajuda sobre les comandes disponibles.
 - `/author`: mostra el nom dels autors del projecte.
 - `/go destí`: mostra a l'usuari un mapa per arribar de la seva posició actual fins al punt de destí escollit
-    pel camí més curt segons el concetpe de *ispeed*.
-   Exemples:
-    - `/go Campus Nord`
-    - `/go Sagrada Família`
-    - `/go Pla de Palau, 18` (Facultat de Nàutica)
+  pel camí més curt segons el concetpe de _ispeed_.
+  Exemples:
+  - `/go Campus Nord`
+  - `/go Sagrada Família`
+  - `/go Pla de Palau, 18` (Facultat de Nàutica)
 - `/where`: mostra la posició actual de l'usuari.
 
-També hi ha una comanda *secreta* que permet falsejar la posició actual de l'usuari,
+També hi ha una comanda _secreta_ que permet falsejar la posició actual de l'usuari,
 de forma que es puguin fer proves facilment sense haver de sortir de casa:
 
 - `/pos`: fixa la posició actual de l'usuari a una posició falsa.
-   Exemples:
-    - `/pos Campus Nord`
-    - `/pos 41.38248 2.18511` (Facultat de Nàutica)
-
+  Exemples:
+  - `/pos Campus Nord`
+  - `/pos 41.38248 2.18511` (Facultat de Nàutica)
 
 El bot hauria de començar carregant les dades necessàries. A partir d'aquell
 moment esperarà connexions de diferents usuaris i els ajudarà a arribar a la
@@ -192,7 +184,6 @@ d'adaptar-se al trànsit en temps real.
 
 Totes les comandes han de funcionar per a diferents usuaris alhora i les accions
 d'un usuari no han d'interferir amb els altres usuaris.
-
 
 ## Llibreries
 
@@ -209,8 +200,7 @@ Utilitzeu les llibreries de Python següents:
 
 Les tres primeres són estàndards i no cal que feu res per tenir-les.
 Les altres llibreries es poden instal·lar amb `pip3 install` o `sudo pip3 install`, però `osmnx`
-porta una mica de feina... En Ubuntu, cal primer fer un `sudo apt install
-libspatialindex-dev`. En Mac, cal fer un `brew install spatialindex gdal` i, a
+porta una mica de feina... En Ubuntu, cal primer fer un `sudo apt install libspatialindex-dev`. En Mac, cal fer un `brew install spatialindex gdal` i, a
 més, posar les darreres versions dels instal·ladors:
 
 1. `pip3 install --upgrade pip setuptools wheel`
@@ -220,8 +210,6 @@ més, posar les darreres versions dels instal·ladors:
 Podeu utilitzar lliurament altres llibreries estàndards de Python, però si no
 són estàndards, heu de demanar permís als vostres professors (que segurament no
 us el donaran).
-
-
 
 ## Indicacions per treballar amb els grafs d'OSMnx
 
@@ -238,7 +226,6 @@ with open(GRAPH_FILENAME, 'wb') as file:
 ```
 
 A partir d'aquest moment els podreu carregar des del fitxer enlloc de des de la xarxa:
-
 
 ```python
 with open(GRAPH_FILENAME, 'rb') as file:
@@ -268,20 +255,18 @@ A banda, segurament haureu d'utilitzar aquestes funcions per treballar amb grafs
 - [`plot_graph`](https://osmnx.readthedocs.io/en/stable/osmnx.html?highlight=plot_graph#osmnx.plot.plot_graph)
 - [`add_edge_bearings`](https://osmnx.readthedocs.io/en/stable/osmnx.html?highlight=add_edge_bearings#osmnx.bearing.add_edge_bearings)
 
-
-Notes: 
+Notes:
 
 - El paquet `networkx` està implementat directament en Python i és bastant lent. Què fi farem...
 
 - Alguns m'heu dit que que `plot_graph` deixa de funcionar amb graf un cop fet el `get_digraph`.
 
-- Els qui teniu Ubuntu sobre Windows,  `plot_graph` no sembla funcionar, potser perquè deu tenir alguna limitació que li impedeix mostrar gràfics per la pantalla. En aquest cas, deseu la imatge en un fitxer:
+- Els qui teniu Ubuntu sobre Windows, `plot_graph` no sembla funcionar, potser perquè deu tenir alguna limitació que li impedeix mostrar gràfics per la pantalla. En aquest cas, deseu la imatge en un fitxer:
 
-    ```python
-    g = osmnx.graph_from_place('Vic, Catalonia')
-    osmnx.plot_graph(g, show=False, save=True, filepath='vic.png')
-    ```
-
+  ```python
+  g = osmnx.graph_from_place('Vic, Catalonia')
+  osmnx.plot_graph(g, show=False, save=True, filepath='vic.png')
+  ```
 
 ## Indicacions per llegirs URLs en CSV
 
@@ -297,7 +282,6 @@ with urllib.request.urlopen(HIGHWAYS_URL) as response:
         way_id, description, coordinates = line
         print(way_id, description, coordinates)
 ```
-
 
 # Instruccions
 
@@ -320,7 +304,6 @@ amb aquestes característiques:
 Si no es reb cap missatge d'equip per aquesta data, es considerarà que feu la
 pràctica sols. Si heu enviat aquest missatge, es considerarà que feu la
 pràctica junts (i no s'admetràn "divorcis").
-
 
 ## Lliurament
 
@@ -355,40 +338,38 @@ El projecte també ha de contenir un fitxer `requirements.txt`
 amb les llibreries que utilitza el vostre projecte per poder-lo instal·lar.
 Vegeu, per exemple, https://www.idkrtm.com/what-is-the-python-requirements-txt/.
 
-
-
 ## Consells
 
 - Us suggerim seguir aquests passos per a dur a terme el vostre projecte:
 
-    1. Seguiu el [tutorial de networkx](https://networkx.github.io/documentation/stable/tutorial.html).
+  1. Seguiu el [tutorial de networkx](https://networkx.github.io/documentation/stable/tutorial.html).
 
-    1. Seguiu el [tutorial de osmnx](https://geoffboeing.com/2016/11/osmnx-python-street-networks/).
+  1. Seguiu el [tutorial de osmnx](https://geoffboeing.com/2016/11/osmnx-python-street-networks/).
 
-    1. Estudieu el format de la relació de [trams de la via pública](https://opendata-ajuntament.barcelona.cat/data/ca/dataset/transit-relacio-trams) de la ciutat de Barcelona.
+  1. Estudieu el format de la relació de [trams de la via pública](https://opendata-ajuntament.barcelona.cat/data/ca/dataset/transit-relacio-trams) de la ciutat de Barcelona.
 
-    1. Estudieu la informació sobre [l'estat del trànsit als trams](https://opendata-ajuntament.barcelona.cat/data/ca/dataset/trams)  de la ciutat de Barcelona.
+  1. Estudieu la informació sobre [l'estat del trànsit als trams](https://opendata-ajuntament.barcelona.cat/data/ca/dataset/trams) de la ciutat de Barcelona.
 
-    1. Seguiu el
-    [tutorial d'`staticmaps`](https://lliçons.jutge.org/python/fitxers-i-formats.html)
-    (hi ha altres coses, centreu-vos en la darrera secció).
+  1. Seguiu el
+     [tutorial d'`staticmaps`](https://lliçons.jutge.org/python/fitxers-i-formats.html)
+     (hi ha altres coses, centreu-vos en la darrera secció).
 
-    1. Dissenyeu el mòdul `igo` tot definint els seus tipus de dades i les capçaleres de les seves funcions públiques.
-        Feu-vos un esquema de les diferents funcions i crides entre elles.
+  1. Dissenyeu el mòdul `igo` tot definint els seus tipus de dades i les capçaleres de les seves funcions públiques.
+     Feu-vos un esquema de les diferents funcions i crides entre elles.
 
-    1. Implementeu el mòdul `igo`
-       però sense implementar encara el concepte de *itime*. Si seguiu la pauta, implementeu cada funció `load_x`
-       i proveu-la amb la corresponent `plot_x`.
-       Useu un [*stub*](https://ca.wikipedia.org/wiki/Stub_(software_testing))
-       per a `build_igraph` que essencialment no faci res.
+  1. Implementeu el mòdul `igo`
+     però sense implementar encara el concepte de _itime_. Si seguiu la pauta, implementeu cada funció `load_x`
+     i proveu-la amb la corresponent `plot_x`.
+     Useu un [_stub_](<https://ca.wikipedia.org/wiki/Stub_(software_testing)>)
+     per a `build_igraph` que essencialment no faci res.
 
-    1. Implementareu el concepte d'*itime* en el `build_igraph` real.
+  1. Implementareu el concepte d'_itime_ en el `build_igraph` real.
 
-    1. Seguiu el [tutorial de telegram](https://lliçons.jutge.org/python/telegram.html).
+  1. Seguiu el [tutorial de telegram](https://lliçons.jutge.org/python/telegram.html).
 
-    1. Implementeu el mòdul `bot` i proveu-lo.
+  1. Implementeu el mòdul `bot` i proveu-lo.
 
--  Documenteu el codi a mesura que l'escriviu.
+- Documenteu el codi a mesura que l'escriviu.
 
 - L'enunciat deixa obertes moltes qüestions expressament. Sou els responsables de prendre
   les vostres decisions de disseny i deixar-les reflectides adientment al codi i
@@ -400,7 +381,6 @@ Vegeu, per exemple, https://www.idkrtm.com/what-is-the-python-requirements-txt/.
 
 - Per evitar problemes de còpies, no pengeu el vostre projecte en repositoris
   públics.
-
 
 ## Autors
 
