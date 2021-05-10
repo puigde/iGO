@@ -1,6 +1,6 @@
-#falta mrar com fer bé la funció boleana del exists_graph + mirar com es fa lo del plot (aixo ultim ho hauras de mirar tu k
-#a mi no em mostra el graph per pantalla)
-import fiona 
+#el programa completa el test actual, falta mirar bé quina és la diferència entre el graph i el digraph 
+#i quins efectes tindrà en la posterioritat de la implementació, he separat els datatypes com va dir en jordi: https://raco.fib.upc.edu/avisos/veure.jsp?espai=270208&id=118168
+import fiona #pel mac
 import osmnx as ox
 import pickle as pl
 
