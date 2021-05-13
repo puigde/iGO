@@ -6,7 +6,7 @@ import pickle as pl
 import collections
 import urllib
 import csv
-import staticmap
+from staticmap import StaticMap, Line
 
 PLACE = 'Barcelona, Catalonia'
 GRAPH_FILENAME = 'barcelona.graph'
@@ -47,20 +47,53 @@ def plot_graph(graph, onscreen=True): #onscreen must be True if MacOS is used an
     else:
         ox.plot_graph(graph, show= False, save= True, filepath= 'bcn.png')
 
+#returns every coordinate as a double
+def string_to_doble (coordinates, i):
+    new_coordinate = 0
+    dot = False
+    j = 1
+    while (i < len (coordinates) and coordinates[i] != ',' ):
+        if (coordinates[i] == '.'):
+            dot = True
+        elif (coordinates[i] != ' '):
+            if dot:
+                new_coordinate = new_coordinate + float (coordinates[i]) * pow (10, -j)
+                j += 1
+            else:
+                new_coordinate = new_coordinate * 10 + float (coordinates[i])
+        i += 1
+    i += 1 #i doesn't have to stay at position with ,
+    return new_coordinate, i
+
+#returns a list of every highway
 def download_highways (HIGHWAYS_URL):
     highways = []
     with urllib.request.urlopen(HIGHWAYS_URL) as response:
         lines = [l.decode('utf-8') for l in response.readlines()]
         reader = csv.reader(lines, delimiter=',', quotechar='"')
         next(reader)  # ignore first line with description
-        for line in reader:  
+        for line in reader:
             way_id, description, coordinates = line
-            highway = [way_id, description, coordinates]
+            #coordinates are read as strings but must be put as pairs x, y of floats
+            new_coordinates = []
+            i = 0
+            while (i < len (coordinates)):
+                x, i = string_to_doble(coordinates, i)
+                y, i = string_to_doble(coordinates, i)
+                pair = [x, y]
+                new_coordinates.append (pair)
+            highway = [way_id, description, new_coordinates]
             highways.append (highway)
         return highways
 
-def plot_highways (highways, SIZE):
-    print ("tamos bien")
+def plot_highways( highways ,SIZE):
+    m = StaticMap (SIZE, SIZE)
+    for highway in highways:
+        for i in range (len(highway)):
+            line = Line(highway[i], 'red', 20)
+            m.add_line(line)
+    image = m.render(zoom = 5)
+    image.save('highways.png')
 
 def test():
     # loads/downloads graph (using cache) and plot it on the screen
@@ -73,7 +106,8 @@ def test():
 
     #plot_graph(graph) #prints the graph
     highways = download_highways(HIGHWAYS_URL)
-    plot_highways(highways, SIZE)
+    print (highways[0][2])
+    plot_highways( highways, SIZE)
 
 #testing
 test()
