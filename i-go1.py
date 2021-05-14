@@ -80,19 +80,19 @@ def download_highways (HIGHWAYS_URL):
             while (i < len (coordinates)):
                 x, i = string_to_doble(coordinates, i)
                 y, i = string_to_doble(coordinates, i)
-                pair = [x, y]
+                pair = (x, y)
                 new_coordinates.append (pair)
             highway = [way_id, description, new_coordinates]
             highways.append (highway)
         return highways
 
+#gives a .png file of all the highways printed on a map
 def plot_highways( highways ,SIZE):
     m = StaticMap (SIZE, SIZE)
     for highway in highways:
-        for i in range (len(highway)):
-            line = Line(highway[i], 'red', 20)
-            m.add_line(line)
-    image = m.render(zoom = 5)
+        line = Line(highway[2], 'red', 1) #highway[2] is the list of coordinates
+        m.add_line(line)
+    image = m.render()
     image.save('highways.png')
 
 def test():
@@ -106,7 +106,6 @@ def test():
 
     #plot_graph(graph) #prints the graph
     highways = download_highways(HIGHWAYS_URL)
-    print (highways[0][2])
     plot_highways( highways, SIZE)
 
 #testing
