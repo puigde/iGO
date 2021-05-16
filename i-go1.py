@@ -9,6 +9,7 @@ import pickle as pl
 import collections
 import urllib
 import csv
+import pandas as pd 
 from staticmap import StaticMap, Line
 
 PLACE = 'Barcelona, Catalonia'
@@ -68,6 +69,27 @@ def string_to_float (coordinates, i):
         i += 1
     i += 1 #i doesn't have to stay at position with ,
     return new_coordinate, i
+
+def get_highways(HIGHWAYS_URL): #trying to work with pandas, seems to be much cleaner, constructing, do not touch
+    #reads data from the csv file into a pandas datatype 
+    cord= 'Coordenades'
+    desc= 'Descripció'
+    df= pd.read_csv(HIGHWAYS_URL, usecols=[desc, cord])
+    pd.set_option('display.max_rows', 20)
+    pd.set_option('display.width', 200)
+    print(df)
+    for index, row in df.iterrows():
+        print(row[cord], sep='end')
+    print()
+    #plots data from the csv file 
+    map_df= StaticMap(600,600)
+    for index, row in df.iterrows():
+        marker= Line(coord_converter(row[cord]),'red',1)
+        map_df.add_line(marker)
+
+    #saving the image
+    image= map_df.render()
+    image.save('pandahighways.png')
 
 #returns a list of every highway
 def download_highways (HIGHWAYS_URL):
@@ -156,12 +178,19 @@ def test():
         print("graph already saved, loading...")
         graph = load_graph(GRAPH_FILENAME)
 
-    #plot_graph(graph) #prints the graph
-    highways = download_highways(HIGHWAYS_URL)
-    plot_highways( highways, SIZE)
+    plot_graph(graph) #prints the graph
 
+    print('checkpoint 1')
+    #downloads and prints highways
+    highways = download_highways(HIGHWAYS_URL)
+    print('checkpoint 2')
+    plot_highways( highways, SIZE)
+    print('checkpoint 3')
+
+    #downloads and prints congestions
     congestions = download_congestions(CONGESTIONS_URL)
+    print('checkpoint 4')
     plot_congestions(highways, congestions, SIZE)
 
 #testing
-test()
+get_highways(HIGHWAYS_URL)
