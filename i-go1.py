@@ -70,26 +70,27 @@ def string_to_float (coordinates, i):
     i += 1 #i doesn't have to stay at position with ,
     return new_coordinate, i
 
-def get_highways(HIGHWAYS_URL): #trying to work with pandas, seems to be much cleaner, constructing, do not touch
+
+def get_highways(HIGHWAYS_URL): #trying to work with pandas, seems to be much cleaner, constructing, do not delete
     #reads data from the csv file into a pandas datatype 
     cord= 'Coordenades'
     desc= 'Descripció'
-    df= pd.read_csv(HIGHWAYS_URL, usecols=[desc, cord])
-    pd.set_option('display.max_rows', 20)
-    pd.set_option('display.width', 200)
-    print(df)
-    for index, row in df.iterrows():
-        print(row[cord], sep='end')
-    print()
-    #plots data from the csv file 
-    map_df= StaticMap(600,600)
-    for index, row in df.iterrows():
-        marker= Line(coord_converter(row[cord]),'red',1)
-        map_df.add_line(marker)
+    df= pd.read_csv(HIGHWAYS_URL) #reads the csv file 
+    
+    #convert data into list 
+    highways= df.values.tolist() #creates a list with the read data
+    #col0= id, col1= name, col3= coordinates
 
-    #saving the image
-    image= map_df.render()
-    image.save('pandahighways.png')
+    m = StaticMap (600, 600)
+    for highway in highways:
+        line = Line(highway[2], 'red', 1) #highway[2] is the list of coordinates
+        m.add_line(line)
+
+    print('checkpoint_succesful')
+
+    #render still doesn't work 
+    image = m.render()
+    image.save('highways.png')
 
 #returns a list of every highway
 def download_highways (HIGHWAYS_URL):
@@ -181,6 +182,7 @@ def test():
     plot_graph(graph) #prints the graph
 
     print('checkpoint 1')
+
     #downloads and prints highways
     highways = download_highways(HIGHWAYS_URL)
     print('checkpoint 2')
@@ -193,4 +195,4 @@ def test():
     plot_congestions(highways, congestions, SIZE)
 
 #testing
-get_highways(HIGHWAYS_URL)
+test()
