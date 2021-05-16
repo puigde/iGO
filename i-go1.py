@@ -146,6 +146,14 @@ def read_congestion (all):
     n = len (all)
     return all [0][n - 2]
 
+#gets all the congestions values and stores them in a tuple with the indicated parameters 
+def pandas_download_congestions(CONGESTIONS_URL):
+    cf= pd.read_csv(CONGESTIONS_URL, sep='#', header= None)
+    #creates a list of lists with the parameters id, date, value1, value 2 read from the dataset
+    #de cares al plotting seria interessant veure quin dels dos valors és el que indica la congestió o com va
+    congestions= cf.values.tolist()
+    return congestions
+
 #returns a list of all the congestion of every stretch
 def download_congestions (CONGESTIONS_URL):
     congestions = [-1]*533
@@ -214,5 +222,5 @@ def test():
     plot_congestions(highways, congestions, SIZE)
 
 #testing
-highways= pandas_download_highways(HIGHWAYS_URL)
-pandas_plot_highways(highways)
+congestions= pandas_download_congestions(CONGESTIONS_URL)
+print(congestions)
