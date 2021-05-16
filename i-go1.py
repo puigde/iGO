@@ -1,15 +1,16 @@
-#el programa completa el test actual, falta mirar bé quina és la diferència entre el graph i el digraph
-#i quins efectes tindrà en la posterioritat de la implementació, he separat els datatypes com va dir en jordi: https://raco.fib.upc.edu/avisos/veure.jsp?espai=270208&id=118168
+#he readaptat lu del highways utilitzant pandas, crec que queda més net i elegant però he deixat les teves funcions perquè ho poguem comentar
+#ara intentaré afegir una columna amb la congestió per a cadascuna de les highways i potser el plot congestions que pinti colors segons aquest nivell
 
 #A les funcion plot_highways i plot_congestions hi ha el parametre congestions.png / highways.png k em dona error si el poso, l'he tret i tot forula
 #mira si a tu et va be sense o és alló de que o ho he de fer de una forma i tu d'una altre
+
 import fiona #pel mac
 import osmnx as ox
 import pickle as pl
 import collections
 import urllib
 import csv
-import pandas as pd 
+import pandas as pd #installation with pip3 install pandas
 from staticmap import StaticMap, Line
 
 PLACE = 'Barcelona, Catalonia'
@@ -17,6 +18,7 @@ GRAPH_FILENAME = 'barcelona.graph'
 HIGHWAYS_URL = 'https://opendata-ajuntament.barcelona.cat/data/dataset/1090983a-1c40-4609-8620-14ad49aae3ab/resource/1d6c814c-70ef-4147-aa16-a49ddb952f72/download/transit_relacio_trams.csv'
 CONGESTIONS_URL = 'https://opendata-ajuntament.barcelona.cat/data/dataset/8319c2b1-4c21-4962-9acd-6db4c5ff1148/resource/2d456eb5-4ea6-4f68-9794-2f3f1a58a933/download'
 SIZE = 800
+
 
 Highway = collections.namedtuple('Highway', ['way_id', 'description', 'coordinates']) # Tram
 
@@ -70,27 +72,17 @@ def string_to_float (coordinates, i):
     i += 1 #i doesn't have to stay at position with ,
     return new_coordinate, i
 
-
-def get_highways(HIGHWAYS_URL): #trying to work with pandas, seems to be much cleaner, constructing, do not delete
-    #reads data from the csv file into a pandas datatype 
-    cord= 'Coordenades'
-    desc= 'Descripció'
-    df= pd.read_csv(HIGHWAYS_URL) #reads the csv file 
-    
-    #convert data into list 
-    highways= df.values.tolist() #creates a list with the read data
-    #col0= id, col1= name, col3= coordinates
-
-    m = StaticMap (600, 600)
+#adjust coordinates from panda lecture to a list of pairs
+def adjust_coordinates(highways): 
     for highway in highways:
-        line = Line(highway[2], 'red', 1) #highway[2] is the list of coordinates
-        m.add_line(line)
-
-    print('checkpoint_succesful')
-
-    #render still doesn't work 
-    image = m.render()
-    image.save('highways.png')
+        i=0
+        newcord=[]
+        while (i<len(highway[2])):
+            x,i = string_to_float(highway[2],i)
+            y,i = string_to_float(highway[2],i)
+            pair= (x,y)
+            newcord.append(pair)
+        highway[2]= newcord
 
 #returns a list of every highway
 def download_highways (HIGHWAYS_URL):
@@ -121,6 +113,33 @@ def plot_highways( highways ,SIZE):
         m.add_line(line)
     image = m.render()
     image.save('highways.png')
+
+#downloads highways info and stores it in a tuple 
+def pandas_download_highways(HIGHWAYS_URL): #versió utilitzant panda, trobo que queda més net
+
+    #Reads the full csv document with pandas and stores the contents in a pandas Datatype
+    df= pd.read_csv(HIGHWAYS_URL) #reads the csv file 
+    
+    #Converts datatypes to lists with the following format col0= number_id, col1= name, col2= coordinates
+    highways= df.values.tolist() #creates a list with the read data and the mentioned structure
+    #adjusts the coordinates list datatypes from text to lists of pairs of float values indicating the coordinates
+    adjust_coordinates(highways) 
+
+    return highways
+
+#gives a visual representation of the highways in a static_map painted with lines and saves it into a png file (arbitrary size for tests, SIZE parameter can be added)
+def pandas_plot_highways(highways):
+    #ploting the data 
+    m = StaticMap (600, 600) #test values
+    for highway in highways:
+        line = Line(highway[2], 'red', 1) #highway[2] has to be the list of coordinates in pairs
+        m.add_line(line)
+
+    print('checkpoint_succesful')
+
+    #saving the image
+    image = m.render()
+    image.save('highways.png') 
 
 #returns the number which defines the congestion of the stretch
 def read_congestion (all):
@@ -195,4 +214,5 @@ def test():
     plot_congestions(highways, congestions, SIZE)
 
 #testing
-test()
+highways= pandas_download_highways(HIGHWAYS_URL)
+pandas_plot_highways(highways)
