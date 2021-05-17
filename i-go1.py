@@ -4,6 +4,7 @@
 #A les funcion plot_highways i plot_congestions hi ha el parametre congestions.png / highways.png k em dona error si el poso, l'he tret i tot forula
 #mira si a tu et va be sense o és alló de que o ho he de fer de una forma i tu d'una altre
 
+from typing import NoReturn
 import fiona #pel mac
 import osmnx as ox
 import pickle as pl
@@ -21,6 +22,7 @@ SIZE = 800
 
 
 Highway = collections.namedtuple('Highway', ['way_id', 'description', 'coordinates']) # Tram
+Congestion= collections.namedtuple('Congestion',['c_id', 'date', 'current', 'future']) #Trànsit
 
 #checks if there is an existent graph file
 def exists_graph(GRAPH_FILENAME):
@@ -84,55 +86,26 @@ def adjust_coordinates(highways):
             newcord.append(pair)
         highway[2]= newcord
 
-#returns a list of every highway
-def download_highways (HIGHWAYS_URL):
-    highways = []
-    with urllib.request.urlopen(HIGHWAYS_URL) as response:
-        lines = [l.decode('utf-8') for l in response.readlines()]
-        reader = csv.reader(lines, delimiter=',', quotechar='"')
-        next(reader)  # ignore first line with description
-        for line in reader:
-            way_id, description, coordinates = line
-            #coordinates are read as strings but must be put as pairs x, y of floats
-            new_coordinates = []
-            i = 0
-            while (i < len (coordinates)):
-                x, i = string_to_float(coordinates, i)
-                y, i = string_to_float(coordinates, i)
-                pair = (x, y)
-                new_coordinates.append (pair)
-            highway = [int (way_id), description, new_coordinates]
-            highways.append (highway)
-        return highways
-
-#gives a .png file of all the highways printed on a map
-def plot_highways( highways ,SIZE):
-    m = StaticMap (SIZE, SIZE)
-    for highway in highways:
-        line = Line(highway[2], 'red', 1) #highway[2] is the list of coordinates
-        m.add_line(line)
-    image = m.render()
-    image.save('highways.png')
-
 #downloads highways info and stores it in a tuple 
-def pandas_download_highways(HIGHWAYS_URL): #versió utilitzant panda, trobo que queda més net
+def download_highways(HIGHWAYS_URL): #versió utilitzant panda, trobo que queda més net
 
-    #Reads the full csv document with pandas and stores the contents in a pandas Datatype
-    df= pd.read_csv(HIGHWAYS_URL) #reads the csv file 
-    
-    #Converts datatypes to lists with the following format col0= number_id, col1= name, col2= coordinates
-    highways= df.values.tolist() #creates a list with the read data and the mentioned structure
-    #adjusts the coordinates list datatypes from text to lists of pairs of float values indicating the coordinates
-    adjust_coordinates(highways) 
+    df= pd.read_csv(HIGHWAYS_URL) #reads the csv file     
+    highways= df.values.tolist() #adjusts to list format
+    adjust_coordinates(highways) #adjusts coordinates to float values
 
-    return highways
+    hw= [] #list of namedtuple highways 
+    for highway in highways:
+        h= Highway(highway[0], highway[1], highway[2]) #change format into our defined namedtuple
+        hw.append(h)
+
+    return hw
 
 #gives a visual representation of the highways in a static_map painted with lines and saves it into a png file (arbitrary size for tests, SIZE parameter can be added)
-def pandas_plot_highways(highways):
+def plot_highways(highways, SIZE):
     #ploting the data 
-    m = StaticMap (600, 600) #test values
+    m = StaticMap (SIZE, SIZE) #test values
     for highway in highways:
-        line = Line(highway[2], 'red', 1) #highway[2] has to be the list of coordinates in pairs
+        line = Line(highway.coordinates, 'red', 1) #highway[2] has to be the list of coordinates in pairs
         m.add_line(line)
 
     print('checkpoint_succesful')
@@ -152,8 +125,18 @@ def pandas_download_congestions(CONGESTIONS_URL):
     #creates a list of lists with the parameters id, date, value1, value 2 read from the dataset
     #de cares al plotting seria interessant veure quin dels dos valors és el que indica la congestió o com va
     congestions= cf.values.tolist()
+    cong= []
+    for congestion in congestions:
+        c= Congestion(congestion[0], congestion[1], congestion[2], congestion[3])
+        cong.append(c)
     return congestions
 
+def pandas_plot_congestions(congestions, highways):
+    #cal emparellar cadascuna de les congestions amb la seva respectiva highway o carrer del graf
+    #cal veure com identificar cadascuna de les congestions pq els nombres no van del tot quadrats
+    #seria interessant implementar-ja a l'emparellament que les que no tinguessin dades de congestió
+    #prenéssin les dades de congestió segons els carrers o highways propers
+    return True
 #returns a list of all the congestion of every stretch
 def download_congestions (CONGESTIONS_URL):
     congestions = [-1]*533
@@ -206,7 +189,7 @@ def test():
         print("graph already saved, loading...")
         graph = load_graph(GRAPH_FILENAME)
 
-    plot_graph(graph) #prints the graph
+    #plot_graph(graph) #prints the graph
 
     print('checkpoint 1')
 
@@ -217,10 +200,9 @@ def test():
     print('checkpoint 3')
 
     #downloads and prints congestions
-    congestions = download_congestions(CONGESTIONS_URL)
+    congestions = pandas_download_congestions(CONGESTIONS_URL)
     print('checkpoint 4')
-    plot_congestions(highways, congestions, SIZE)
+    #plot_congestions(highways, congestions, SIZE) #working on it
 
 #testing
-congestions= pandas_download_congestions(CONGESTIONS_URL)
-print(congestions)
+test()
