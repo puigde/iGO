@@ -1,5 +1,5 @@
-#he readaptat lu del highways utilitzant pandas, crec que queda més net i elegant però he deixat les teves funcions perquè ho poguem comentar
-#ara intentaré afegir una columna amb la congestió per a cadascuna de les highways i potser el plot congestions que pinti colors segons aquest nivell
+#he estat llegint i investigant com tenim disposat el graf de bcn en sí, és interessant l'enllaç https://networkx.org/documentation/stable/tutorial.html#examining-elements-of-a-graph
+#per l'apartat concret i tot l'article en general, parla de com funciona un graf de osmnx com el que tenim creat
 
 #A les funcion plot_highways i plot_congestions hi ha el parametre congestions.png / highways.png k em dona error si el poso, l'he tret i tot forula
 #mira si a tu et va be sense o és alló de que o ho he de fer de una forma i tu d'una altre
@@ -13,6 +13,7 @@ import urllib
 import csv
 import pandas as pd #installation with pip3 install pandas
 from staticmap import StaticMap, Line
+import networkx as nx #potser caldrà instalar l'scipy, jo he fet brew install scipy pq me'l demanava però per wdws no se quina cmmd és
 
 PLACE = 'Barcelona, Catalonia'
 GRAPH_FILENAME = 'barcelona.graph'
@@ -119,7 +120,7 @@ def read_congestion (all):
     n = len (all)
     return all [0][n - 2]
 
-#gets all the congestions values and stores them in a tuple with the indicated parameters 
+#gets all the congestions values and stores them in a list of the defined tuple congestions with the indicated parameters 
 def pandas_download_congestions(CONGESTIONS_URL):
     cf= pd.read_csv(CONGESTIONS_URL, sep='#', header= None)
     #creates a list of lists with the parameters id, date, value1, value 2 read from the dataset
@@ -129,7 +130,7 @@ def pandas_download_congestions(CONGESTIONS_URL):
     for congestion in congestions:
         c= Congestion(congestion[0], congestion[1], congestion[2], congestion[3])
         cong.append(c)
-    return congestions
+    return cong
 
 def pandas_plot_congestions(congestions, highways):
     #cal emparellar cadascuna de les congestions amb la seva respectiva highway o carrer del graf
@@ -203,6 +204,7 @@ def test():
     congestions = pandas_download_congestions(CONGESTIONS_URL)
     print('checkpoint 4')
     #plot_congestions(highways, congestions, SIZE) #working on it
+    
 
 #testing
 test()
