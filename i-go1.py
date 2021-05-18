@@ -76,7 +76,7 @@ def string_to_float (coordinates, i):
     return new_coordinate, i
 
 #adjust coordinates from panda lecture to a list of pairs
-def adjust_coordinates(highways): 
+def adjust_coordinates(highways):
     for highway in highways:
         i=0
         newcord=[]
@@ -87,49 +87,50 @@ def adjust_coordinates(highways):
             newcord.append(pair)
         highway[2]= newcord
 
-#downloads highways info and stores it in a tuple 
+#downloads highways info and stores it in a tuple
 def download_highways(HIGHWAYS_URL): #versió utilitzant panda, trobo que queda més net
 
-    df= pd.read_csv(HIGHWAYS_URL) #reads the csv file     
+    df= pd.read_csv(HIGHWAYS_URL) #reads the csv file
     highways= df.values.tolist() #adjusts to list format
     adjust_coordinates(highways) #adjusts coordinates to float values
-
-    hw= [] #list of namedtuple highways 
+    n = -1
     for highway in highways:
-        h= Highway(highway[0], highway[1], highway[2]) #change format into our defined namedtuple
-        hw.append(h)
-
-    return hw
+        if (n < highway [0]):
+            n = highway[0]
+    hw = [Highway(-1, "VOID", (-1, -1))] * n #list of namedtuple highways
+    for highway in highways:
+        hw [highway[0] - 1] = Highway(highway[0], highway[1], highway[2])
+    return hw, n
 
 #gives a visual representation of the highways in a static_map painted with lines and saves it into a png file (arbitrary size for tests, SIZE parameter can be added)
 def plot_highways(highways, SIZE):
-    #ploting the data 
+    #ploting the data
     m = StaticMap (SIZE, SIZE) #test values
     for highway in highways:
-        line = Line(highway.coordinates, 'red', 1) #highway[2] has to be the list of coordinates in pairs
-        m.add_line(line)
+        if highway.way_id != -1: #only existing higways must be painted
+            line = Line(highway.coordinates, 'red', 1) #highway[2] has to be the list of coordinates in pairs
+            m.add_line(line)
 
     print('checkpoint_succesful')
 
     #saving the image
     image = m.render()
-    image.save('highways.png') 
+    image.save('highways.png')
 
 #returns the number which defines the congestion of the stretch
 def read_congestion (all):
     n = len (all)
     return all [0][n - 2]
 
-#gets all the congestions values and stores them in a list of the defined tuple congestions with the indicated parameters 
-def pandas_download_congestions(CONGESTIONS_URL):
+#gets all the congestions values and stores them in a list of the defined tuple congestions with the indicated parameters
+def pandas_download_congestions(CONGESTIONS_URL, n):
     cf= pd.read_csv(CONGESTIONS_URL, sep='#', header= None)
     #creates a list of lists with the parameters id, date, value1, value 2 read from the dataset
     #de cares al plotting seria interessant veure quin dels dos valors és el que indica la congestió o com va
     congestions= cf.values.tolist()
-    cong= []
+    cong= [Congestion (-1, "void", -1, -1)]*n
     for congestion in congestions:
-        c= Congestion(congestion[0], congestion[1], congestion[2], congestion[3])
-        cong.append(c)
+        cong [congestion[0] - 1]= Congestion(congestion[0], congestion[1], congestion[2], congestion[3])
     return cong
 
 def pandas_plot_congestions(congestions, highways):
@@ -139,6 +140,7 @@ def pandas_plot_congestions(congestions, highways):
     #prenéssin les dades de congestió segons els carrers o highways propers
     return True
 #returns a list of all the congestion of every stretch
+"""Si VOLS POTS ESBORRAR AIXO"""
 def download_congestions (CONGESTIONS_URL):
     congestions = [-1]*533
     with urllib.request.urlopen(CONGESTIONS_URL) as response:
@@ -151,33 +153,36 @@ def download_congestions (CONGESTIONS_URL):
             congestions.append (read_congestion (all))
 
     return congestions
-
+#gives a visual representation of the congestion in a static_map painted with lines and saves it into a png file (arbitrary size for tests, SIZE parameter can be added)
+#colors correspondece : grey = no data, blue = very fluid, green = fluid, yellow = heavy, orange = very heavy, red = traffic jam, black =
+"""Com es diu en angles quan un carrer està tallat? es k cut sona macarronic"""
 def plot_congestions (highways, congestions, SIZE):
     m = StaticMap (SIZE, SIZE)
     for highway in highways:
-        congestion_type = congestions[highway[0] - 1]
-        if congestion_type == 0:
-            line = Line(highway[2], 'blue', 1)
-            m.add_line(line)
-        elif congestion_type == 1:
-            line = Line(highway[2], 'green', 1)
-            m.add_line(line)
-        elif congestion_type == 2:
-            line = Line(highway[2], 'yellow', 1)
-            m.add_line(line)
-        elif congestion_type == 3:
-            line = Line(highway[2], 'orange', 1)
-            m.add_line(line)
-        elif congestion_type == 4:
-            line = Line(highway[2], 'red', 1)
-            m.add_line(line)
-        elif congestion_type == 5:
-            line = Line(highway[2], 'grey', 1)
-            m.add_line(line)
-        elif congestion_type == 6:
-            line = Line(highway[2], 'black', 1)
-            m.add_line(line)
-
+        #only existing higways must be painted
+        if highway.way_id != -1:
+            congestion_type = congestions[highway.way_id - 1].current
+            if congestion_type == 0:
+                line = Line(highway.coordinates, 'grey', 1)
+                m.add_line(line)
+            elif congestion_type == 1:
+                line = Line(highway.coordinates, 'blue', 1)
+                m.add_line(line)
+            elif congestion_type == 2:
+                line = Line(highway.coordinates, 'green', 1)
+                m.add_line(line)
+            elif congestion_type == 3:
+                line = Line(highway.coordinates, 'yellow', 1)
+                m.add_line(line)
+            elif congestion_type == 4:
+                line = Line(highway.coordinates, 'orange', 1)
+                m.add_line(line)
+            elif congestion_type == 5:
+                line = Line(highway.coordinates, 'red', 1)
+                m.add_line(line)
+            else:
+                line = Line(highway.coordinates, 'black', 1)
+                m.add_line(line)
     image = m.render()
     image.save('congestions.png')
 
@@ -195,16 +200,16 @@ def test():
     print('checkpoint 1')
 
     #downloads and prints highways
-    highways = download_highways(HIGHWAYS_URL)
+    highways, n = download_highways(HIGHWAYS_URL)
     print('checkpoint 2')
     plot_highways( highways, SIZE)
     print('checkpoint 3')
 
     #downloads and prints congestions
-    congestions = pandas_download_congestions(CONGESTIONS_URL)
+    congestions = pandas_download_congestions(CONGESTIONS_URL, n)
     print('checkpoint 4')
-    #plot_congestions(highways, congestions, SIZE) #working on it
-    
+    plot_congestions(highways, congestions, SIZE) #working on it
+    #print('checkpoint 5')
 
 #testing
 test()
