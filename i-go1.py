@@ -117,11 +117,6 @@ def plot_highways(highways, SIZE):
     image = m.render()
     image.save('highways.png')
 
-#returns the number which defines the congestion of the stretch
-def read_congestion (all):
-    n = len (all)
-    return all [0][n - 2]
-
 #gets all the congestions values and stores them in a list of the defined tuple congestions with the indicated parameters
 def pandas_download_congestions(CONGESTIONS_URL, n):
     cf= pd.read_csv(CONGESTIONS_URL, sep='#', header= None)
@@ -133,29 +128,11 @@ def pandas_download_congestions(CONGESTIONS_URL, n):
         cong [congestion[0] - 1]= Congestion(congestion[0], congestion[1], congestion[2], congestion[3])
     return cong
 
-def pandas_plot_congestions(congestions, highways):
-    #cal emparellar cadascuna de les congestions amb la seva respectiva highway o carrer del graf
-    #cal veure com identificar cadascuna de les congestions pq els nombres no van del tot quadrats
-    #seria interessant implementar-ja a l'emparellament que les que no tinguessin dades de congestió
-    #prenéssin les dades de congestió segons els carrers o highways propers
-    return True
-#returns a list of all the congestion of every stretch
-"""Si VOLS POTS ESBORRAR AIXO"""
-def download_congestions (CONGESTIONS_URL):
-    congestions = [-1]*533
-    with urllib.request.urlopen(CONGESTIONS_URL) as response:
-        lines = [l.decode('utf-8') for l in response.readlines()]
-        reader = csv.reader(lines, delimiter=',', quotechar='"')
-        next(reader)  # ignore first line with description
-        for line in reader:
-            all = line
-            print (line)
-            congestions.append (read_congestion (all))
 
-    return congestions
 #gives a visual representation of the congestion in a static_map painted with lines and saves it into a png file (arbitrary size for tests, SIZE parameter can be added)
 #colors correspondece : grey = no data, blue = very fluid, green = fluid, yellow = heavy, orange = very heavy, red = traffic jam, black =
 """Com es diu en angles quan un carrer està tallat? es k cut sona macarronic"""
+''' Ho he buscat i crec que s'utilitza el terme blocked :)''''
 def plot_congestions (highways, congestions, SIZE):
     m = StaticMap (SIZE, SIZE)
     for highway in highways:
@@ -186,6 +163,26 @@ def plot_congestions (highways, congestions, SIZE):
     image = m.render()
     image.save('congestions.png')
 
+
+
+#SEMBLA QUE EL QUE HEM DE BAIXAR JA ES BAIXA, ARA A PER LA PART DEL GRAF EN SI, aka 'lu divertit':
+#llegir al README les indicacions per treballar amb els grafs: https://github.com/puigde/ap2-igo#indicacions-per-treballar-amb-els-grafs-dosmnx
+#funcions per a treballar amb NetworkX: https://networkx.org/documentation/stable/reference/functions.html
+#funcions per a treballar amb Osmnx: https://osmnx.readthedocs.io/en/stable/ 
+
+#passos a seguir: 
+#get_nearest_node() a partir d'unes coordenades troba el node del graf més proper - no tinc clar com serà l'input i com passar-lo a coordenades
+
+#de cares a fer el  graf intel·ligent, obtenir nodes més propers al graf a partir dels extrems de les highways (o potser més precisió que els extrems) generar paths i per cada path, afegir la congestió corresponent a la highway que ja tenim emparellada 
+#es pot utilitzar geocode() per convertir strings de coordenades a coordenades per treballar(EXACTE, podria ser que el conversor que et vas cascar no fos necessari)
+#d'aquesta manera transferir el paràmetre de les congestions al pes de les arestes amb la funció add_edge_bearings() (veure exemple codi Biosca) 
+
+#s'ha de llegir i pair el format, jo aprofitaria demà dijous per fer preguntes perquè hi ha coses encara que ballen
+
+#NOTA: per treballar amb el graph en si haurem d'utilitzar l'objecte di_graph()
+
+
+
 def test():
     # loads/downloads graph (using cache) and plot it on the screen
     if not exists_graph(GRAPH_FILENAME):
@@ -208,7 +205,7 @@ def test():
     #downloads and prints congestions
     congestions = pandas_download_congestions(CONGESTIONS_URL, n)
     print('checkpoint 4')
-    plot_congestions(highways, congestions, SIZE) #working on it
+    plot_congestions(highways, congestions, SIZE) 
     #print('checkpoint 5')
 
 #testing
