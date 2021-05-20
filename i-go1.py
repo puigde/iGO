@@ -16,7 +16,7 @@ import csv
 import pandas as pd #installation with pip3 install pandas
 from staticmap import StaticMap, Line
 import networkx as nx #potser caldrà instalar l'scipy, jo he fet brew install scipy pq me'l demanava però per wdws no se quina cmmd és
-import sklearn
+#import sklearn
 
 PLACE = 'Barcelona, Catalonia'
 GRAPH_FILENAME = 'barcelona.graph'
