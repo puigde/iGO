@@ -173,14 +173,14 @@ def plot_congestions (highways, congestions, SIZE):
 #SEMBLA QUE EL QUE HEM DE BAIXAR JA ES BAIXA, ARA A PER LA PART DEL GRAF EN SI, aka 'lu divertit':
 #llegir al README les indicacions per treballar amb els grafs: https://github.com/puigde/ap2-igo#indicacions-per-treballar-amb-els-grafs-dosmnx
 #funcions per a treballar amb NetworkX: https://networkx.org/documentation/stable/reference/functions.html
-#funcions per a treballar amb Osmnx: https://osmnx.readthedocs.io/en/stable/ 
+#funcions per a treballar amb Osmnx: https://osmnx.readthedocs.io/en/stable/
 
-#passos a seguir: 
+#passos a seguir:
 #get_nearest_node() a partir d'unes coordenades troba el node del graf més proper - no tinc clar com serà l'input i com passar-lo a coordenades
 
-#de cares a fer el  graf intel·ligent, obtenir nodes més propers al graf a partir dels extrems de les highways (o potser més precisió que els extrems) generar paths i per cada path, afegir la congestió corresponent a la highway que ja tenim emparellada 
+#de cares a fer el  graf intel·ligent, obtenir nodes més propers al graf a partir dels extrems de les highways (o potser més precisió que els extrems) generar paths i per cada path, afegir la congestió corresponent a la highway que ja tenim emparellada
 #es pot utilitzar geocode() per convertir strings de coordenades a coordenades per treballar(EXACTE, podria ser que el conversor que et vas cascar no fos necessari)
-#d'aquesta manera transferir el paràmetre de les congestions al pes de les arestes amb la funció add_edge_bearings() (veure exemple codi Biosca) 
+#d'aquesta manera transferir el paràmetre de les congestions al pes de les arestes amb la funció add_edge_bearings() (veure exemple codi Biosca)
 
 #s'ha de llegir i pair el format, jo aprofitaria demà dijous per fer preguntes perquè hi ha coses encara que ballen
 
@@ -292,21 +292,15 @@ def test():
         graph= load_graph(PLOT_GRAPH_FILENAME) #for printing issues
 
 
-    #plot_graph(graph) #prints the graph
-
-    print('checkpoint 1')
+    plot_graph(graph) #prints the graph
 
     #downloads and prints highways
     highways, n = download_highways(HIGHWAYS_URL)
-    print('checkpoint 2')
     plot_highways( highways, SIZE)
-    print('checkpoint 3')
 
     #downloads and prints congestions
     congestions = pandas_download_congestions(CONGESTIONS_URL, n)
-    print('checkpoint 4')
-    plot_congestions(highways, congestions, SIZE) 
-    #print('checkpoint 5')
+    plot_congestions(highways, congestions, SIZE)
 
     i_graph= build_i_graph(di_graph, congestions, highways, ARBITRARY, INFINIT)
     
