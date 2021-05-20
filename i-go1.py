@@ -5,6 +5,9 @@
 #mira si a tu et va be sense o és alló de que o ho he de fer de una forma i tu d'una altre
 
 from typing import NoReturn
+from networkx.algorithms.bipartite.matching import INFINITY
+
+from networkx.generators.classic import path_graph
 import fiona #pel mac
 import osmnx as ox
 import pickle as pl
@@ -20,7 +23,9 @@ GRAPH_FILENAME = 'barcelona.graph'
 HIGHWAYS_URL = 'https://opendata-ajuntament.barcelona.cat/data/dataset/1090983a-1c40-4609-8620-14ad49aae3ab/resource/1d6c814c-70ef-4147-aa16-a49ddb952f72/download/transit_relacio_trams.csv'
 CONGESTIONS_URL = 'https://opendata-ajuntament.barcelona.cat/data/dataset/8319c2b1-4c21-4962-9acd-6db4c5ff1148/resource/2d456eb5-4ea6-4f68-9794-2f3f1a58a933/download'
 SIZE = 800
-
+PLOT_GRAPH_FILENAME= 'plot_bcn.graph'
+ARBITRARY= 1
+INFINIT= 10000000000
 
 Highway = collections.namedtuple('Highway', ['way_id', 'description', 'coordinates']) # Tram
 Congestion= collections.namedtuple('Congestion',['c_id', 'date', 'current', 'future']) #Trànsit
@@ -130,7 +135,9 @@ def pandas_download_congestions(CONGESTIONS_URL, n):
 
 
 #gives a visual representation of the congestion in a static_map painted with lines and saves it into a png file (arbitrary size for tests, SIZE parameter can be added)
-#colors correspondece : grey = no data, blue = very fluid, green = fluid, yellow = heavy, orange = very heavy, red = traffic jam, black = blocked
+#colors correspondece : grey = no data, blue = very fluid, green = fluid, yellow = heavy, orange = very heavy, red = traffic jam, black =
+"""Com es diu en angles quan un carrer està tallat? es k cut sona macarronic"""
+''' Ho he buscat i crec que s'utilitza el terme blocked :)'''
 def plot_congestions (highways, congestions, SIZE):
     m = StaticMap (SIZE, SIZE)
     for highway in highways:
@@ -179,16 +186,111 @@ def plot_congestions (highways, congestions, SIZE):
 
 #NOTA: per treballar amb el graph en si haurem d'utilitzar l'objecte di_graph()
 
+#it iterates trough the graph and prints information
+def print_graph_info(graph):
+    for node1, info1 in graph.nodes.items():
+        print('NODE INFO: ', node1, info1)
 
+        for node2, edge in graph.adj[node1].items():
+            print('NODE 2 ID')
+            print(' ', node2)
+            print('EDGE INFO BELOW')
+            print(' ', edge)
+
+
+#FIRST VERSION, HIGHWAY COORDINATE FORMAT NEEDS TO BE ADJUSTED FOR THIS IMPLEMENTATION TO RUN, ALSO NEEDS TESTING AND TALKING THE EXACT FORMAT
+#BUT I THINK THAT THE MAIN IDEA IS THERE
+def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
+    #adding a congestion parameter to edges at an arbitrary value arb
+    nx.set_edge_attributes(graph, ARBITRARY, name='congestion')
+    #print_graph_info(graph) #interesting to see graph's structure
+    i=2
+    first= True
+    highway_id_counter=0
+    for highway in highways:
+        #taking into account prec. minimum of 4 coordinates for a highway
+        if (len(highway.coordinates)>0):
+            start= highway.coordinates[0]+','+highway.coordinates[1]
+        while i< len(highway.coordinates)-1: #JAN, ACTUALMENT AQUEST PARÀMETRE ESTÀ EN PARELLS DE DOUBLES SI HO VOLS PASSAR A 
+            #UNA LLISTA DE STRINGS, AQUÍ ESTÀ PROGRAMAT PER FER-HO AIXÍ, FIXA'T QUE AGAFO PRIMER UNA DESPRÉS L'ALTRA I DESPRÉS LES PASSO 
+            #A GEOCODE PER CADASCUNA DE LES PARELLES PERÒ SEMPRE ES POT REFORMATEJAR COM HO VEGIS, SINÓ TRUCA'M I HO COMENTEM QUAN ET VAGI BÉ
+            #LLAVORS PODRÍEM ELIMITAR TOT EL CODI DE FORMATEIG AL UTILITZAR GEOCODE
+               #això estaria construint l'string amb la coma per si ho haguessim separat
+                #al formatejar però si no hagués estat així i haguessim pescat cada dos posicions pel vector es fa una petita mod i com nou
+            end=  highway.coordinates[i] +','+ highway.coordinates[i+1]
+
+            #once we have start and end we geolocalize them
+            if (first):
+                start_posnode= ox.geocode(start)
+                end_posnode= ox.geocode(end)
+            else:
+                end_posnode= ox.geocode(end)
+            
+            #NOTA IMPORTANT, SI POSÉSSIM TOTS ELS VALORS X PER CADA NODE EN UNA LLISTA X I ÍDEM PELS Y PODRÍEM OBTENIR TOTS ELS NODES D1
+            #PERO CREC QUE 1 A 1 POTSER ÉS MÉS FÀCIL DE TREBALLAR, VEURE FUNC.: https://osmnx.readthedocs.io/en/stable/osmnx.html?highlight=nearest_nodes#osmnx.distance.nearest_nodes
+            
+            #TROBEM ELS ID'S DELS NODES INICI I FINAL EN ELS QUE ENS TROBEM 
+            if (first):
+                id_start= ox.nearest_nodes(start_posnode)
+                first= False
+            else:
+                id_start=id_end
+            
+            id_end= ox.nearest_nodes(end_posnode)
+
+            #ONCE WE HAVE NODES GEOLOCALIZED WE GET THE PATH BETWEEN THEM AND ASSUME IT'S THE HIGHWAY
+            try:
+                path= ox.shortest_path(id_start, id_end) #returns a list of node id's that form the shortest path between start node and finish node
+
+                #we now want to iterate through the edges that link this nodes and add the respective congestion parameter related to the highway
+                path_start= path[0]
+                first=True
+                j=1
+                while (j<len(path)): #actualitza congestió per cada parells de nodes consecutiva del camí més curt
+                    if (not first):
+                        path_start=path_end
+                    path_end= path[j]
+                    for i in range (len(graph[path_start][path_end])): #needs this kind of iteration because of the digraph format
+                        graph[path_start][path_end][i]['congestion']= congestions[highway_id_counter] #add the congestion parameter of the whole highway
+                    first=False
+                    j+=1
+            except:
+                #there is no path between those two nodes, skip
+
+        highway_id_counter+=1
+
+    #HERE, THE CONGESTION VALUES THAT WE KNOW SHOULD BE SET IN THE RESPECTIVE PATHS OF ALL EDGES THAT ARE CONTAINED IN ALL OUR HIGHWAYS
+    #I THINK THAT WE COULD COMPUTE THE AVERAGE CONGESTION WHEN READING AND SET IT AS THE VALUE OF THE ARBITRARY CONSTANT IF WE DON'T
+    #WANT TO OVERCOMPLICATE IT, ONCE ALL EDGES HAVE A CONGESTION VALUE WE CAN PROCEED AND ADD THE ITIME CONCEPT WHICH WILL BE ANOTHER PARAMETER 
+    #OF EVERY EDGE THAT THE SHORTEST PATH FUNCTION WILL TAKE IN CONSIDERATION FOR COMPUTING THE SORTEST PATH, FOR EXAMPLE
+        
+        #adding itime value
+    nx.set_edge_attributes(graph, INFINIT, name='itime')
+
+    #iterating and modifiying itime for all edges
+    for n1, n2 in graph.edges():
+        for i in range(len(graph[n1][n2])):
+            length= graph[n1][n2][i]['lenght']
+            speed_max= float(graph[n1][n2][i]['speed'])
+            congestion= graph[n1][n2][i]['congestion']
+            itime= (length/speed)* congestion #arbitrary, after testing we calibrate it 
+    
+    #HERE THE INTELLIGENT GRAPH IS BUILT AND NOW WE CAN COMPUTE THE SHORTEST PATH BETWEEN TWO NODES USING THE SHORTEST PATH FUNCTION, SEE BELOW:
+    #sp= ox.shortest_path(starting_point, finishing_point, weight='itime')
+
+    
 
 def test():
     # loads/downloads graph (using cache) and plot it on the screen
-    if not exists_graph(GRAPH_FILENAME):
+    if not exists_graph(GRAPH_FILENAME) or not exists_graph(PLOT_GRAPH_FILENAME):
         graph, di_graph = download_graph(PLACE) #downloads both graph and digraph formats
-        save_graph(graph, GRAPH_FILENAME)
+        save_graph(di_graph, GRAPH_FILENAME)
+        save_graph(graph, PLOT_GRAPH_FILENAME)
     else:
         print("graph already saved, loading...")
-        graph = load_graph(GRAPH_FILENAME)
+        di_graph = load_graph(GRAPH_FILENAME)
+        graph= load_graph(PLOT_GRAPH_FILENAME) #for printing issues
+
 
     plot_graph(graph) #prints the graph
 
@@ -199,6 +301,9 @@ def test():
     #downloads and prints congestions
     congestions = pandas_download_congestions(CONGESTIONS_URL, n)
     plot_congestions(highways, congestions, SIZE)
+
+    i_graph= build_i_graph(di_graph, congestions, highways, ARBITRARY, INFINIT)
+    
 
 #testing
 test()
