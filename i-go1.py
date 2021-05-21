@@ -10,6 +10,7 @@ from networkx.generators.classic import path_graph
 import fiona #pel mac
 import osmnx as ox
 import pickle as pl
+from haversine import haversine
 import collections
 import urllib
 import csv
@@ -178,10 +179,27 @@ def print_graph_info(graph):
             print('EDGE INFO BELOW')
             print(' ', edge)
 
+#prova a funció alternativa a la que ve per defecte i utilitza el modul aquell dels collons que hem comentat amb en jordi
+#donat un graph i una posició retorna el node del graph més proper a la posició
+def get_nearest_node(graph, pos):
+
+    nearest_node = None
+    nearest_dist = 99999 # km
+
+    for node, info in graph.nodes.items():
+        d = haversine((info['y'], info['x']), pos)
+        if d < nearest_dist:
+            nearest_dist = d
+            nearest_node = node
+    return nearest_node
+
+
 
 #FIRST VERSION, HIGHWAY COORDINATE FORMAT NEEDS TO BE ADJUSTED FOR THIS IMPLEMENTATION TO RUN, ALSO NEEDS TESTING AND TALKING THE EXACT FORMAT
 #BUT I THINK THAT THE MAIN IDEA IS THERE
 def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
+
+    print(highways[8].coordinates)
     #adding a congestion parameter to edges at an arbitrary value arb
     nx.set_edge_attributes(graph, ARBITRARY, name='congestion')
     #print_graph_info(graph) #interesting to see graph's structure
@@ -212,16 +230,27 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
 
             #TROBEM ELS ID'S DELS NODES INICI I FINAL EN ELS QUE ENS TROBEM
             if (first):
-                id_start= ox.nearest_nodes(graph, start_posnode[0], start_posnode[1]) #check if float() indicator is needed
+                id_start= get_nearest_node(graph,start_posnode) #check if float() indicator is needed
                 first= False
             else:
+<<<<<<< HEAD
                 id_start = id_end
+=======
+                id_start=id_end
+
+            id_end= get_nearest_node(graph, end_posnode)
+>>>>>>> 8526928fb25f9ab9d02207924d404718ae4e9854
 
             id_end= ox.nearest_nodes(graph, end_posnode[0], end_posnode[1])
             #print ("he acabat be el la highway")
             #ONCE WE HAVE NODES GEOLOCALIZED WE GET THE PATH BETWEEN THEM AND ASSUME IT'S THE HIGHWAY
             try:
+<<<<<<< HEAD
                 path = ox.shortest_path(id_start, id_end) #returns a list of node id's that form the shortest path between start node and finish node
+=======
+                path= get_nearest_node(id_start, id_end) #returns a list of node id's that form the shortest path between start node and finish node
+
+>>>>>>> 8526928fb25f9ab9d02207924d404718ae4e9854
                 #we now want to iterate through the edges that link this nodes and add the respective congestion parameter related to the highway
                 path_start = path[0]
                 first = True
@@ -239,8 +268,9 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
             except:
                 break
                 "there is no path between those two nodes, skip"
-
+        first=True
         highway_id_counter+=1
+        print('status update, highways completed: ', highway_id_counter)
 
     #HERE, THE CONGESTION VALUES THAT WE KNOW SHOULD BE SET IN THE RESPECTIVE PATHS OF ALL EDGES THAT ARE CONTAINED IN ALL OUR HIGHWAYS
     #I THINK THAT WE COULD COMPUTE THE AVERAGE CONGESTION WHEN READING AND SET IT AS THE VALUE OF THE ARBITRARY CONSTANT IF WE DON'T
@@ -256,7 +286,7 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
             length= graph[n1][n2][i]['lenght']
             speed_max= float(graph[n1][n2][i]['speed'])
             congestion= graph[n1][n2][i]['congestion']
-            itime= (length/speed)* congestion #arbitrary, after testing we calibrate it
+            itime= (length/speed_max)* congestion #arbitrary, after testing we calibrate it
 
     #HERE THE INTELLIGENT GRAPH IS BUILT AND NOW WE CAN COMPUTE THE SHORTEST PATH BETWEEN TWO NODES USING THE SHORTEST PATH FUNCTION, SEE BELOW:
     #sp= ox.shortest_path(starting_point, finishing_point, weight='itime')
