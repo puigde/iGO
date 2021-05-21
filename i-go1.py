@@ -92,7 +92,7 @@ def download_highways(HIGHWAYS_URL): #versió utilitzant panda, trobo que queda 
     hw = [Highway(-1, (-1, -1))] * n #list of namedtuple highways
     for highway in highways: #reoorder highways so they're sorted with way_id
         hw [highway[0] - 1] = Highway(highway[0], highway[1])
-    print (hw[1].coordinates) #xivato per veure el format 
+    print (hw[1].coordinates) #xivato per veure el format
     return hw, n
 
 #gives a visual representation of the highways in a static_map painted with lines and saves it into a png file (arbitrary size for tests, SIZE parameter can be added)
@@ -215,7 +215,7 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
             #UNA LLISTA DE STRINGS, AQUÍ ESTÀ PROGRAMAT PER FER-HO AIXÍ, FIXA'T QUE AGAFO PRIMER UNA DESPRÉS L'ALTRA I DESPRÉS LES PASSO
             #A GEOCODE PER CADASCUNA DE LES PARELLES PERÒ SEMPRE ES POT REFORMATEJAR COM HO VEGIS, SINÓ TRUCA'M I HO COMENTEM QUAN ET VAGI BÉ
             #LLAVORS PODRÍEM ELIMITAR TOT EL CODI DE FORMATEIG AL UTILITZAR GEOCODE
-               #això estaria construint l'string amb la coma per si     ho haguessim separat
+               #això estaria construint l'string amb la coma per si ho haguessim separat
                 #al formatejar però si no hagués estat així i haguessim pescat cada dos posicions pel vector es fa una petita mod i com nou
             end=  highway.coordinates[i]
 
