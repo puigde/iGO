@@ -193,20 +193,32 @@ def get_nearest_node(graph, pos):
             nearest_node = node
     return nearest_node
 
+def ponderate_congestion (congestion):
+    if congestion_type == 0:
+        return 1.25 #aixo vol dir k no te info llavors quin valor li donem??
+    elif congestion_type == 1:
+        return 1
+    elif congestion_type == 2:
+        return 1.25
+    elif congestion_type == 3:
+        return 1.5
+    elif congestion_type == 4:
+        return 2
+    elif congestion_type == 5:
+        return 3
+    else:
+        return INFINIT
 
 
-#FIRST VERSION, HIGHWAY COORDINATE FORMAT NEEDS TO BE ADJUSTED FOR THIS IMPLEMENTATION TO RUN, ALSO NEEDS TESTING AND TALKING THE EXACT FORMAT
-#BUT I THINK THAT THE MAIN IDEA IS THERE
+##################################################################################################################################
+"""Aqui el build graph tarda la puta vida perk passem per cada una de les coordenades de higways """
 def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
-
-    print(highways[8].coordinates)
     #adding a congestion parameter to edges at an arbitrary value arb
     nx.set_edge_attributes(graph, ARBITRARY, name='congestion')
     #print_graph_info(graph) #interesting to see graph's structure
     highway_id_counter = 1
     for highway in highways:
         #preconition: 4 coordinates for a highway at least
-        print (highway_id_counter)
         if (highway.way_id > 0):
             start= highway.coordinates[0]
         i = 1
@@ -218,7 +230,6 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
                #això estaria construint l'string amb la coma per si ho haguessim separat
                 #al formatejar però si no hagués estat així i haguessim pescat cada dos posicions pel vector es fa una petita mod i com nou
             end =  highway.coordinates[i]
-
             #once we have start and end we geolocalize them
             if (first):
                 start_posnode= ox.geocode(start)
@@ -233,25 +244,15 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
                 id_start= get_nearest_node(graph,start_posnode) #check if float() indicator is needed
                 first= False
             else:
-<<<<<<< HEAD
                 id_start = id_end
-=======
-                id_start=id_end
 
             id_end= get_nearest_node(graph, end_posnode)
->>>>>>> 8526928fb25f9ab9d02207924d404718ae4e9854
 
-            id_end= ox.nearest_nodes(graph, end_posnode[0], end_posnode[1])
-            #print ("he acabat be el la highway")
             #ONCE WE HAVE NODES GEOLOCALIZED WE GET THE PATH BETWEEN THEM AND ASSUME IT'S THE HIGHWAY
             try:
-<<<<<<< HEAD
-                path = ox.shortest_path(id_start, id_end) #returns a list of node id's that form the shortest path between start node and finish node
-=======
-                path= get_nearest_node(id_start, id_end) #returns a list of node id's that form the shortest path between start node and finish node
-
->>>>>>> 8526928fb25f9ab9d02207924d404718ae4e9854
+                path = ox.shortest_path(graph, id_start, id_end, weight = 'length') #returns a list of node id's that form the shortest path between start node and finish node
                 #we now want to iterate through the edges that link this nodes and add the respective congestion parameter related to the highway
+                print (path)
                 path_start = path[0]
                 first = True
                 j = 1
@@ -263,35 +264,35 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
                         graph[path_start][path_end][k]['congestion'] = congestions[highway_id_counter - 1].congestion #add the congestion parameter of the whole highway
                     first = False
                     j += 1
-
-
             except:
                 break
                 "there is no path between those two nodes, skip"
-        first=True
-        highway_id_counter+=1
         print('status update, highways completed: ', highway_id_counter)
 
-    #HERE, THE CONGESTION VALUES THAT WE KNOW SHOULD BE SET IN THE RESPECTIVE PATHS OF ALL EDGES THAT ARE CONTAINED IN ALL OUR HIGHWAYS
-    #I THINK THAT WE COULD COMPUTE THE AVERAGE CONGESTION WHEN READING AND SET IT AS THE VALUE OF THE ARBITRARY CONSTANT IF WE DON'T
-    #WANT TO OVERCOMPLICATE IT, ONCE ALL EDGES HAVE A CONGESTION VALUE WE CAN PROCEED AND ADD THE ITIME CONCEPT WHICH WILL BE ANOTHER PARAMETER
-    #OF EVERY EDGE THAT THE SHORTEST PATH FUNCTION WILL TAKE IN CONSIDERATION FOR COMPUTING THE SORTEST PATH, FOR EXAMPLE
+        highway_id_counter+=1
+        #HERE, THE CONGESTION VALUES THAT WE KNOW SHOULD BE SET IN THE RESPECTIVE PATHS OF ALL EDGES THAT ARE CONTAINED IN ALL OUR HIGHWAYS
+        #I THINK THAT WE COULD COMPUTE THE AVERAGE CONGESTION WHEN READING AND SET IT AS THE VALUE OF THE ARBITRARY CONSTANT IF WE DON'T
+        #WANT TO OVERCOMPLICATE IT, ONCE ALL EDGES HAVE A CONGESTION VALUE WE CAN PROCEED AND ADD THE ITIME CONCEPT WHICH WILL BE ANOTHER PARAMETER
+        #OF EVERY EDGE THAT THE SHORTEST PATH FUNCTION WILL TAKE IN CONSIDERATION FOR COMPUTING THE SORTEST PATH, FOR EXAMPLE
 
-        #adding itime value
-    nx.set_edge_attributes(graph, INFINIT, name='itime')
+            #adding itime value
+        nx.set_edge_attributes(graph, INFINIT, name='itime')
 
-    #iterating and modifiying itime for all edges
-    for n1, n2 in graph.edges():
-        for i in range(len(graph[n1][n2])):
-            length= graph[n1][n2][i]['lenght']
-            speed_max= float(graph[n1][n2][i]['speed'])
-            congestion= graph[n1][n2][i]['congestion']
-            itime= (length/speed_max)* congestion #arbitrary, after testing we calibrate it
+        #iterating and modifiying itime for all edges
+        #for n1, n2 in graph.edges():
+        #    for i in range(len(graph[n1][n2])):
+        #        length= graph[n1][n2][i]['length']
+        #        speed_max= float(graph[n1][n2][i]['speed'])
+        #        congestion=  ponderate_congestion (graph[n1][n2][i]['congestion'])
+                ## Jo aqui modificaria el valor de la congestio, si es molt baix = 1, si es baix = 1,25 mitja, 1, 50, alt = 2; molt alt, 3, tallat INFINIT, sense dades 1.5???
+        #        itime= (length/speed_max) * congestion #arbitrary, after testing we calibrate it
 
-    #HERE THE INTELLIGENT GRAPH IS BUILT AND NOW WE CAN COMPUTE THE SHORTEST PATH BETWEEN TWO NODES USING THE SHORTEST PATH FUNCTION, SEE BELOW:
-    #sp= ox.shortest_path(starting_point, finishing_point, weight='itime')
+        #HERE THE INTELLIGENT GRAPH IS BUILT AND NOW WE CAN COMPUTE THE SHORTEST PATH BETWEEN TWO NODES USING THE SHORTEST PATH FUNCTION, SEE BELOW:
+        #sp= ox.shortest_path(starting_point, finishing_point, weight='itime')
+##################################################################################################################################
 
-
+#FIRST VERSION, HIGHWAY COORDINATE FORMAT NEEDS TO BE ADJUSTED FOR THIS IMPLEMENTATION TO RUN, ALSO NEEDS TESTING AND TALKING THE EXACT FORMAT
+#BUT I THINK THAT THE MAIN IDEA IS THERE
 
 def test():
     # loads/downloads graph (using cache) and plot it on the screen
