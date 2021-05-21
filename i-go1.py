@@ -6,6 +6,7 @@
 
 from typing import NoReturn
 from networkx.algorithms.bipartite.matching import INFINITY
+from networkx.classes import digraph
 from networkx.generators.classic import path_graph
 import fiona #pel mac
 import osmnx as ox
@@ -209,6 +210,56 @@ def ponderate_congestion (congestion):
     else:
         return INFINIT
 
+def fast_build(graph, highways, congestions, ARBITRARY, INFINIT):
+    print('entering fast build')
+
+    #afegim congestió
+    nx.set_edge_attributes(graph, ARBITRARY, name='congestion')
+
+    highway_id_counter = 1
+
+    #iterem sobre les highways
+    for highway in highways:
+        if (highway.way_id > 0): #checks that highway is existent, JAN AQUÍ EL 0 NO ÉS UN ID VÀLID, DIC PQ VAS SER TU QUI VA FER EL FORMAT FINAL DELS TUPLES
+            #get start and end of the highways
+            starting= highway.coordinates[0]
+            ending= highway.coordinates[len(highway.coordinates)-1]
+
+            start_posnode= ox.geocode(starting)
+            end_posnode= ox.geocode(ending)
+
+            #get the nodes responsible for those points
+            id_start= get_nearest_node(graph, start_posnode)
+            id_end= get_nearest_node(graph, end_posnode)
+
+            print("starting node= ", id_start, "other node= ", id_end)
+            #try finding the shortest path for those nodes, as the graph is not connex it won't be always possible 
+            try:
+                path= ox.shortest_path(graph, id_start, id_end, weight= 'lenght')
+                for node in range(1, len(path)):
+                    for i in range(len(graph[path[node-1]][path[node]])): #necessary iteration for the di_graph
+                        graph[path[node-1]][path[node]][i]['congestion']=congestions[highway.way_id-1].congestion #salta un KEY ERROR AQUí, ara mateix no sabria dir que és
+                
+            except nx.NetworkXNoPath:
+                print('could not find path for that one :)') #path could not be found
+        print('status update, highways completed: ', highway_id_counter)
+        
+        highway_id_counter+=1
+        #HERE, THE CONGESTION VALUES THAT WE KNOW SHOULD BE SET IN THE RESPECTIVE PATHS OF ALL EDGES THAT ARE CONTAINED IN ALL OUR HIGHWAYS
+        #I THINK THAT WE COULD COMPUTE THE AVERAGE CONGESTION WHEN READING AND SET IT AS THE VALUE OF THE ARBITRARY CONSTANT IF WE DON'T
+        #WANT TO OVERCOMPLICATE IT, ONCE ALL EDGES HAVE A CONGESTION VALUE WE CAN PROCEED AND ADD THE ITIME CONCEPT WHICH WILL BE ANOTHER PARAMETER
+        #OF EVERY EDGE THAT THE SHORTEST PATH FUNCTION WILL TAKE IN CONSIDERATION FOR COMPUTING THE SORTEST PATH, FOR EXAMPLE
+
+            #adding itime value
+        nx.set_edge_attributes(graph, INFINIT, name='itime')
+
+
+
+
+
+
+
+
 
 ##################################################################################################################################
 """Aqui el build graph tarda la puta vida perk passem per cada una de les coordenades de higways """
@@ -223,12 +274,7 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
             start= highway.coordinates[0]
         i = 1
         first = True
-        while i < len (highway.coordinates): #JAN, ACTUALMENT AQUEST PARÀMETRE ESTÀ EN PARELLS DE DOUBLES SI HO VOLS PASSAR A
-            #UNA LLISTA DE STRINGS, AQUÍ ESTÀ PROGRAMAT PER FER-HO AIXÍ, FIXA'T QUE AGAFO PRIMER UNA DESPRÉS L'ALTRA I DESPRÉS LES PASSO
-            #A GEOCODE PER CADASCUNA DE LES PARELLES PERÒ SEMPRE ES POT REFORMATEJAR COM HO VEGIS, SINÓ TRUCA'M I HO COMENTEM QUAN ET VAGI BÉ
-            #LLAVORS PODRÍEM ELIMITAR TOT EL CODI DE FORMATEIG AL UTILITZAR GEOCODE
-               #això estaria construint l'string amb la coma per si ho haguessim separat
-                #al formatejar però si no hagués estat així i haguessim pescat cada dos posicions pel vector es fa una petita mod i com nou
+        while i < len (highway.coordinates): 
             end =  highway.coordinates[i]
             #once we have start and end we geolocalize them
             if (first):
@@ -236,9 +282,7 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
                 end_posnode= ox.geocode(end)
             else:
                 end_posnode= ox.geocode(end)
-            #NOTA IMPORTANT, SI POSÉSSIM TOTS ELS VALORS X PER CADA NODE EN UNA LLISTA X I ÍDEM PELS Y PODRÍEM OBTENIR TOTS ELS NODES D1
-            #PERO CREC QUE 1 A 1 POTSER ÉS MÉS FÀCIL DE TREBALLAR, VEURE FUNC.: https://osmnx.readthedocs.io/en/stable/osmnx.html?highlight=nearest_nodes#osmnx.distance.nearest_nodes
-
+            
             #TROBEM ELS ID'S DELS NODES INICI I FINAL EN ELS QUE ENS TROBEM
             if (first):
                 id_start= get_nearest_node(graph,start_posnode) #check if float() indicator is needed
@@ -252,7 +296,7 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
             try:
                 path = ox.shortest_path(graph, id_start, id_end, weight = 'length') #returns a list of node id's that form the shortest path between start node and finish node
                 #we now want to iterate through the edges that link this nodes and add the respective congestion parameter related to the highway
-                print (path)
+                print (path) #hi ha alguna cosa per aquí que no funciona
                 path_start = path[0]
                 first = True
                 j = 1
@@ -315,7 +359,32 @@ def test():
     congestions = download_congestions(CONGESTIONS_URL, n)
     plot_congestions(highways, congestions, 'congestions.png', SIZE)
 
-    i_graph= build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
+    #testing particular del path per dos nodes arbitraris per veure com funciona
+    '''i=0
+    for node, info in graph.nodes.items():
+        if i==0:    
+            id_start= node
+        if i==1:
+            id_end= node
+        i+=1
+        if i==2:
+            break
+    path= ox.shortest_path(graph, id_start, id_end, weight= 'lenght')
+    path_start= path[0]
+    j=1
+    while (j<len(path)):
+        if (j!=1): #skip first case
+            path_start= path_end
+        path_end= path[j]
+        for k in range (len(graph[path_start][path_end])): #needs this kind of iteration because of the digraph format
+            graph[path_start][path_end][k]['congestion'] = congestions[5 - 1].congestion #add the congestion parameter of the whole highway
+            print("la congestió modificada aquí ",graph[path_start][path_end][k]['congestion'])
+        j+=1
+    print (path)'''
 
+    #i_graph= build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT) no funciona pq el path es queda encallat en una iteració on va imprimint sempre 
+    #el mateix node
+    i_graph= fast_build(di_graph, highways,congestions, ARBITRARY, INFINIT)
 
+#testing
 test()
