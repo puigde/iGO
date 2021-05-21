@@ -91,7 +91,6 @@ def download_highways(HIGHWAYS_URL): #versió utilitzant panda, trobo que queda 
     hw = [Highway(-1, (-1, -1))] * n #list of namedtuple highways
     for highway in highways: #reoorder highways so they're sorted with way_id
         hw [highway[0] - 1] = Highway(highway[0], highway[1])
-    print (hw[1].coordinates) #xivato per veure el format
     return hw, n
 
 #gives a visual representation of the highways in a static_map painted with lines and saves it into a png file (arbitrary size for tests, SIZE parameter can be added)
@@ -186,20 +185,21 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
     #adding a congestion parameter to edges at an arbitrary value arb
     nx.set_edge_attributes(graph, ARBITRARY, name='congestion')
     #print_graph_info(graph) #interesting to see graph's structure
-    i=2
-    first= True
-    highway_id_counter=0
+    highway_id_counter = 1
     for highway in highways:
-        #taking into account prec. minimum of 4 coordinates for a highway
-        if (len(highway.coordinates)>0):
+        #preconition: 4 coordinates for a highway at least
+        print (highway_id_counter)
+        if (highway.way_id > 0):
             start= highway.coordinates[0]
-        while i< len(highway.coordinates): #JAN, ACTUALMENT AQUEST PARÀMETRE ESTÀ EN PARELLS DE DOUBLES SI HO VOLS PASSAR A
+        i = 1
+        first = True
+        while i < len (highway.coordinates): #JAN, ACTUALMENT AQUEST PARÀMETRE ESTÀ EN PARELLS DE DOUBLES SI HO VOLS PASSAR A
             #UNA LLISTA DE STRINGS, AQUÍ ESTÀ PROGRAMAT PER FER-HO AIXÍ, FIXA'T QUE AGAFO PRIMER UNA DESPRÉS L'ALTRA I DESPRÉS LES PASSO
             #A GEOCODE PER CADASCUNA DE LES PARELLES PERÒ SEMPRE ES POT REFORMATEJAR COM HO VEGIS, SINÓ TRUCA'M I HO COMENTEM QUAN ET VAGI BÉ
             #LLAVORS PODRÍEM ELIMITAR TOT EL CODI DE FORMATEIG AL UTILITZAR GEOCODE
                #això estaria construint l'string amb la coma per si ho haguessim separat
                 #al formatejar però si no hagués estat així i haguessim pescat cada dos posicions pel vector es fa una petita mod i com nou
-            end=  highway.coordinates[i]
+            end =  highway.coordinates[i]
 
             #once we have start and end we geolocalize them
             if (first):
@@ -207,7 +207,6 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
                 end_posnode= ox.geocode(end)
             else:
                 end_posnode= ox.geocode(end)
-
             #NOTA IMPORTANT, SI POSÉSSIM TOTS ELS VALORS X PER CADA NODE EN UNA LLISTA X I ÍDEM PELS Y PODRÍEM OBTENIR TOTS ELS NODES D1
             #PERO CREC QUE 1 A 1 POTSER ÉS MÉS FÀCIL DE TREBALLAR, VEURE FUNC.: https://osmnx.readthedocs.io/en/stable/osmnx.html?highlight=nearest_nodes#osmnx.distance.nearest_nodes
 
@@ -216,27 +215,29 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
                 id_start= ox.nearest_nodes(graph, start_posnode[0], start_posnode[1]) #check if float() indicator is needed
                 first= False
             else:
-                id_start=id_end
+                id_start = id_end
 
-            id_end= ox.nearest_nodes(graph, end_posnode[0], end_postnode[1])
-
+            id_end= ox.nearest_nodes(graph, end_posnode[0], end_posnode[1])
+            #print ("he acabat be el la highway")
             #ONCE WE HAVE NODES GEOLOCALIZED WE GET THE PATH BETWEEN THEM AND ASSUME IT'S THE HIGHWAY
             try:
-                path= ox.shortest_path(id_start, id_end) #returns a list of node id's that form the shortest path between start node and finish node
-
+                path = ox.shortest_path(id_start, id_end) #returns a list of node id's that form the shortest path between start node and finish node
                 #we now want to iterate through the edges that link this nodes and add the respective congestion parameter related to the highway
-                path_start= path[0]
-                first=True
-                j=1
-                while (j<len(path)): #actualitza congestió per cada parells de nodes consecutiva del camí més curt
+                path_start = path[0]
+                first = True
+                j = 1
+                while (j < len(path)): #actualitza congestió per cada parells de nodes consecutiva del camí més curt
                     if (not first):
-                        path_start=path_end
-                    path_end= path[j]
-                    for i in range (len(graph[path_start][path_end])): #needs this kind of iteration because of the digraph format
-                        graph[path_start][path_end][i]['congestion']= congestions[highway_id_counter] #add the congestion parameter of the whole highway
-                    first=False
-                    j+=1
+                        path_start = path_end
+                    path_end = path[j]
+                    for k in range (len(graph[path_start][path_end])): #needs this kind of iteration because of the digraph format
+                        graph[path_start][path_end][k]['congestion'] = congestions[highway_id_counter - 1].congestion #add the congestion parameter of the whole highway
+                    first = False
+                    j += 1
+
+
             except:
+                break
                 "there is no path between those two nodes, skip"
 
         highway_id_counter+=1
