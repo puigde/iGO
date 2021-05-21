@@ -195,7 +195,7 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
             #UNA LLISTA DE STRINGS, AQUÍ ESTÀ PROGRAMAT PER FER-HO AIXÍ, FIXA'T QUE AGAFO PRIMER UNA DESPRÉS L'ALTRA I DESPRÉS LES PASSO
             #A GEOCODE PER CADASCUNA DE LES PARELLES PERÒ SEMPRE ES POT REFORMATEJAR COM HO VEGIS, SINÓ TRUCA'M I HO COMENTEM QUAN ET VAGI BÉ
             #LLAVORS PODRÍEM ELIMITAR TOT EL CODI DE FORMATEIG AL UTILITZAR GEOCODE
-               #això estaria construint l'string amb la coma per si     ho haguessim separat
+               #això estaria construint l'string amb la coma per si ho haguessim separat
                 #al formatejar però si no hagués estat així i haguessim pescat cada dos posicions pel vector es fa una petita mod i com nou
             end=  highway.coordinates[i] +','+ highway.coordinates[i+1]
 
@@ -281,7 +281,7 @@ def test():
     congestions = download_congestions(CONGESTIONS_URL, n)
     plot_congestions(highways, congestions, 'congestions.png', SIZE)
 
-    i_graph= build_i_graph(di_graph, congestions, highways, ARBITRARY, INFINIT)
+    #i_graph= build_i_graph(di_graph, congestions, highways, ARBITRARY, INFINIT)
 
 
 test()
