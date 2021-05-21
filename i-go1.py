@@ -16,6 +16,7 @@ import csv
 import pandas as pd #installation with pip3 install pandas
 from staticmap import StaticMap, Line
 import networkx as nx #potser caldrà instalar l'scipy, jo he fet brew install scipy pq me'l demanava però per wdws no se quina cmmd és
+#import sklearn
 
 PLACE = 'Barcelona, Catalonia'
 GRAPH_FILENAME = 'barcelona.graph'
@@ -90,6 +91,7 @@ def download_highways(HIGHWAYS_URL): #versió utilitzant panda, trobo que queda 
     hw = [Highway(-1, (-1, -1))] * n #list of namedtuple highways
     for highway in highways: #reoorder highways so they're sorted with way_id
         hw [highway[0] - 1] = Highway(highway[0], highway[1])
+    print (hw[1].coordinates) #xivato per veure el format
     return hw, n
 
 #gives a visual representation of the highways in a static_map painted with lines and saves it into a png file (arbitrary size for tests, SIZE parameter can be added)
@@ -190,14 +192,14 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
     for highway in highways:
         #taking into account prec. minimum of 4 coordinates for a highway
         if (len(highway.coordinates)>0):
-            start= highway.coordinates[0]+','+highway.coordinates[1]
-        while i< len(highway.coordinates)-1: #JAN, ACTUALMENT AQUEST PARÀMETRE ESTÀ EN PARELLS DE DOUBLES SI HO VOLS PASSAR A
+            start= highway.coordinates[0]
+        while i< len(highway.coordinates): #JAN, ACTUALMENT AQUEST PARÀMETRE ESTÀ EN PARELLS DE DOUBLES SI HO VOLS PASSAR A
             #UNA LLISTA DE STRINGS, AQUÍ ESTÀ PROGRAMAT PER FER-HO AIXÍ, FIXA'T QUE AGAFO PRIMER UNA DESPRÉS L'ALTRA I DESPRÉS LES PASSO
             #A GEOCODE PER CADASCUNA DE LES PARELLES PERÒ SEMPRE ES POT REFORMATEJAR COM HO VEGIS, SINÓ TRUCA'M I HO COMENTEM QUAN ET VAGI BÉ
             #LLAVORS PODRÍEM ELIMITAR TOT EL CODI DE FORMATEIG AL UTILITZAR GEOCODE
                #això estaria construint l'string amb la coma per si ho haguessim separat
                 #al formatejar però si no hagués estat així i haguessim pescat cada dos posicions pel vector es fa una petita mod i com nou
-            end=  highway.coordinates[i] +','+ highway.coordinates[i+1]
+            end=  highway.coordinates[i]
 
             #once we have start and end we geolocalize them
             if (first):
@@ -211,12 +213,12 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
 
             #TROBEM ELS ID'S DELS NODES INICI I FINAL EN ELS QUE ENS TROBEM
             if (first):
-                id_start= ox.nearest_nodes(start_posnode)
+                id_start= ox.nearest_nodes(graph, start_posnode[0], start_posnode[1]) #check if float() indicator is needed
                 first= False
             else:
                 id_start=id_end
 
-            id_end= ox.nearest_nodes(end_posnode)
+            id_end= ox.nearest_nodes(graph, end_posnode[0], end_postnode[1])
 
             #ONCE WE HAVE NODES GEOLOCALIZED WE GET THE PATH BETWEEN THEM AND ASSUME IT'S THE HIGHWAY
             try:
@@ -271,7 +273,7 @@ def test():
         di_graph = load_graph(GRAPH_FILENAME)
         graph= load_graph(PLOT_GRAPH_FILENAME) #for printing issues
 
-    plot_graph(graph) #prints the graph
+    #plot_graph(graph) #prints the graph
 
     #downloads and prints highways
     highways, n = download_highways(HIGHWAYS_URL) #n is the biggest way_id of the highways
@@ -281,7 +283,7 @@ def test():
     congestions = download_congestions(CONGESTIONS_URL, n)
     plot_congestions(highways, congestions, 'congestions.png', SIZE)
 
-    #i_graph= build_i_graph(di_graph, congestions, highways, ARBITRARY, INFINIT)
+    i_graph= build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
 
 
 test()
