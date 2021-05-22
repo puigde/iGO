@@ -193,7 +193,7 @@ def get_nearest_node(graph, pos):
         if d < nearest_dist:
             nearest_dist = d
             nearest_node = node
-    return nearest_node 
+    return nearest_node
 
 def ponderate_congestion (congestion_type):
     if congestion_type == 0:
@@ -224,7 +224,7 @@ def bo_build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT): #intento
     for highway in highways:
         if (highway.way_id>0):
             for i in range(1, len(highway.coordinates)):
-                #alerta aquí abans teníem 
+                #alerta aquí abans teníem
                 node1= get_nearest_node(graph, highway.coordinates[i-1])
                 node2= get_nearest_node(graph, highway.coordinates[i])
 
@@ -284,6 +284,23 @@ def checking_highways_congestions (highways, congestions):
             print (i+1)
     print ("pol puto subnormal")
 
+def get_shortest_path_with_itime(igraph, origin, destination):
+    ori = ox.geocode (origin)
+    dest = ox.geocode (destination)
+    return ox.shortest_path(igraph, ori, dest, weight='itime')
+
+def plot_path(igraph, ipath, SIZE):
+    #ploting the data
+    iplot = []
+    for i in range len (ipath):
+        iplot.append ((ipath[i]['x'], ipath[i]['y']))
+    m = StaticMap (SIZE, SIZE) #test values
+    line = Line(iplot, 'red', 1)
+    m.add_line(line)
+    #saving the image
+    image = m.render()
+    image.save("your_path.png")
+
 def test():
     # loads/downloads graph (using cache) and plot it on the screen
     if not exists_graph(GRAPH_FILENAME) or not exists_graph(PLOT_GRAPH_FILENAME):
@@ -307,10 +324,13 @@ def test():
 
     #checking_highways_congestions (highways, congestions)
 
-    
+
     i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
     #print_graph_info(i_graph)
 
+    # get 'intelligent path' between two addresses and plot it into a PNG image
+    ipath = get_shortest_path_with_ispeeds(igraph, "Campus Nord", "Sagrada Família")
+    plot_path(igraph, ipath, SIZE)
+
 #testing
 test()
-
