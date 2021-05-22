@@ -284,15 +284,17 @@ def checking_highways_congestions (highways, congestions):
             print (i+1)
     print ("pol puto subnormal")
 
+#crec que el geocode no funciona tan màgicament amb el nom del lloc directament o almenys salta un error per aquest cas
 def get_shortest_path_with_itime(igraph, origin, destination):
     ori = ox.geocode (origin)
     dest = ox.geocode (destination)
     return ox.shortest_path(igraph, ori, dest, weight='itime')
 
+#aquí mira't el format d'un path, diria que son els node id's i llavors tu has d'agafar les coordenades dins de l'igraph
 def plot_path(igraph, ipath, SIZE):
     #ploting the data
     iplot = []
-    for i in range len (ipath):
+    for i in range (len(ipath)):
         iplot.append ((ipath[i]['x'], ipath[i]['y']))
     m = StaticMap (SIZE, SIZE) #test values
     line = Line(iplot, 'red', 1)
@@ -329,8 +331,9 @@ def test():
     #print_graph_info(i_graph)
 
     # get 'intelligent path' between two addresses and plot it into a PNG image
-    ipath = get_shortest_path_with_ispeeds(igraph, "Campus Nord", "Sagrada Família")
-    plot_path(igraph, ipath, SIZE)
+    ipath = get_shortest_path_with_itime(i_graph, "Campus Nord", "Sagrada Família")
+    plot_path(i_graph, ipath, SIZE)
 
 #testing
+
 test()
