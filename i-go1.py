@@ -195,7 +195,7 @@ def get_nearest_node(graph, pos):
             nearest_node = node
     return nearest_node 
 
-def ponderate_congestion (congestion):
+def ponderate_congestion (congestion_type):
     if congestion_type == 0:
         return 1.25 #aixo vol dir k no te info llavors quin valor li donem??
     elif congestion_type == 1:
@@ -211,12 +211,16 @@ def ponderate_congestion (congestion):
     else:
         return INFINIT
 
+#seems to be working, we could add a delay for <15 degree turns as suggested in the README and discuss the calibration of the itime factors
 def bo_build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT): #intento fer una altra funció perquè he provat de deubgar la principal però no se que collons l'hi passa
     nx.set_edge_attributes(graph, ARBITRARY, name='congestion')
     #print_graph_info(graph)
     nopath_counter=0
     no_speed_data_counter=0
     edges_with_speed_data_in=0
+    zerospeed=0
+    zerocongestion=0
+    counter2=0
     for highway in highways:
         if (highway.way_id>0):
             for i in range(1, len(highway.coordinates)):
@@ -234,32 +238,27 @@ def bo_build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT): #intento
                         #print('aquí bé')
                         #algún dels accessos d'aquí sota és incorrecte, no semblo entendre perquè
                         graph[path_node1][path_node2]['congestion']= congestions[highway.way_id-1].congestion
+                        if (congestions[highway.way_id-1].congestion==0):
+                            zerocongestion+=1
                 except nx.NetworkXNoPath:
                     #print('nopath')
                     nopath_counter+=1
                     pass
         print('loading congestions ', highway.way_id, "/", len(highways))
 
-    #falta aclarar el tema d'iteració del digraph aquí perquè si ho posem amb la k d'abans dona key error pel bucle anterior
-    #però amb el format actual sembla no trobar l'atribut maxspeed
+    #adding the itime atribute for all edges in the graph 
     nx.set_edge_attributes(graph, ARBITRARY, name='itime')
     for node1, node2 in graph.edges():
         length = graph[node1][node2]['length']
         try:
             speed = float(graph[node1][node2]['maxspeed'])
             edges_with_speed_data_in+=1
-        except: #some edges don't have maxspeed value in them 
+        except: #some edges don't have maxspeed value in them so we add the new normative speed value for the inside cities
             speed= 30
-            no_speed_data_counter+=1
-        congestion = graph[node1][node2]['congestion']
-        if (speed==0): #no pot valdre 0
-            print('iepiepv2')
-            speed= 30
-        if (congestion==0): #altanto que les congestions no haurien de poder valer zero si apliquem aquest criteri de divisió
-            print('iepiep')
-        graph[node1][node2]['itime'] = length/(speed*congestion)
+        congestion = ponderate_congestion(graph[node1][node2]['congestion'])
+        graph[node1][node2]['itime'] = length*congestion/(speed)
     
-    print('edges with no speed value= ', no_speed_data_counter, 'edges with speed value= ', edges_with_speed_data_in)
+    print_graph_info(graph)
     return graph
 
 
