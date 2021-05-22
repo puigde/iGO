@@ -188,11 +188,11 @@ def get_nearest_node(graph, pos):
     nearest_dist = 99999 # km
 
     for node, info in graph.nodes.items():
-        d = haversine((info['y'], info['x']), pos)
+        d = haversine((info['x'], info['y']), pos) #aquí diria que y i x estaven a l'inversa de com ho teniem nosaltres
         if d < nearest_dist:
             nearest_dist = d
             nearest_node = node
-    return nearest_node
+    return nearest_node 
 
 def ponderate_congestion (congestion):
     if congestion_type == 0:
@@ -253,7 +253,31 @@ def fast_build(graph, highways, congestions, ARBITRARY, INFINIT):
             #adding itime value
         nx.set_edge_attributes(graph, INFINIT, name='itime')
 
+def bo_build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT): #intento fer una altra funció perquè he provat de deubgar la principal però no se que collons l'hi passa
+    nx.set_edge_attributes(graph, ARBITRARY, name='congestion')
+    #print_graph_info(graph)
+    for highway in highways:
+        if (highway.way_id>0):
+            for i in range(1, len(highway.coordinates)):
+                #alerta aquí abans teníem 
+                node1= get_nearest_node(graph, highway.coordinates[i-1])
+                node2= get_nearest_node(graph, highway.coordinates[i])
 
+                try:
+                    path= ox.shortest_path(graph, node1, node2, weight='length')
+                    print(path)
+                    print('path found')
+                    for j in range(1, len(path)):
+                        path_node1= path[j-1]
+                        path_node2= path[j]
+                        print('aquí bé')
+                        #algún dels accessos d'aquí sota és incorrecte, no semblo entendre perquè
+                        graph[path_node1][path_node2]['congestion']= congestions[highway.way_id].congestion
+                except nx.NetworkXNoPath:
+                    print('nopath')
+                    pass
+              
+        print(':)?')
 
 
 
@@ -262,19 +286,20 @@ def fast_build(graph, highways, congestions, ARBITRARY, INFINIT):
 
 
 ##################################################################################################################################
-"""Aqui el build graph tarda la puta vida perk passem per cada una de les coordenades de highways """
 def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
     #adding a congestion parameter to edges at an arbitrary value arb
     nx.set_edge_attributes(graph, ARBITRARY, name='congestion')
+    print('checkpoint 1')
     #print_graph_info(graph) #interesting to see graph's structure
+    nopath=0 #indicator for us to know how many paths were skipped 
     highway_id_counter = 1
     for highway in highways:
-        #preconition: 4 coordinates for a highway at least
+        print('checkpoint 1', "we working")
         if (highway.way_id > 0):
             start= highway.coordinates[0]
             i = 1
             first = True
-            while i < len (highway.coordinates):
+            while i < len (highway.coordinates)-1:
                 end =  highway.coordinates[i]
                 #once we have start and end we geolocalize them
                 if (first):
@@ -296,23 +321,33 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
                 try:
                     path = ox.shortest_path(graph, id_start, id_end, weight = 'length') #returns a list of node id's that form the shortest path between start node and finish node
                     #we now want to iterate through the edges that link this nodes and add the respective congestion parameter related to the highway
-                    print (path) #hi ha alguna cosa per aquí que no funciona
-                    if len (path) > 1: #if path is just one node, program collapse because there aren't any edge to change it's congestion
-                        path_start = path[0]
-                        first = True
-                        j = 1
-                        while (j < len(path)): #actualitza congestió per cada parells de nodes consecutiva del camí més curt
-                            if (not first):
-                                path_start = path_end
-                                path_end = path[j]
-                                for k in range (len(graph[path_start][path_end])): #needs this kind of iteration because of the digraph format
-                                    graph[path_start][path_end][k]['congestion'] = congestions[highway_id_counter - 1].congestion #add the congestion parameter of the whole highway
-                                    first = False
-                                j += 1
+                    #print ('printing path for the nodes',path, sep='\n') #hi ha alguna cosa per aquí que no funciona
+                    for node in range(1, len(path)):
+                        for k in range(len(graph[path[node-1]][path[node]])):
+                            graph[path[node-1]][path[node]][0]['congestion']=2 #testing
+
                 except:
-                    break
-                    "there is no path between those two nodes, skip"
+                    nopath+=1 
+                    print('there is no path')
+                    pass
+
+                        #funció vella per iterar sobre els paths
+                '''path_start = path[0]
+                first = True
+                j = 1
+                while (j < len(path)-1): #actualitza congestió per cada parells de nodes consecutiva del camí més curt
+                    if (not first):
+                        path_start = path_end
+                    path_end = path[j]
+                    for k in range (len(graph[path_start][path_end])): #needs this kind of iteration because of the digraph format
+                        graph[path_start][path_end][k]['congestion'] = 2
+                        #parameter_value= congestions[highway_id_counter - 1].congestion #add the congestion parameter of the whole highway
+                        first = False
+                    j += 1'''
+                i+=1
+
             print('status update, highways completed: ', highway_id_counter)
+            print('no path found= ', nopath)
 
             highway_id_counter+=1
         #HERE, THE CONGESTION VALUES THAT WE KNOW SHOULD BE SET IN THE RESPECTIVE PATHS OF ALL EDGES THAT ARE CONTAINED IN ALL OUR HIGHWAYS
@@ -336,8 +371,6 @@ def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT):
         #sp= ox.shortest_path(starting_point, finishing_point, weight='itime')
 ##################################################################################################################################
 
-#FIRST VERSION, HIGHWAY COORDINATE FORMAT NEEDS TO BE ADJUSTED FOR THIS IMPLEMENTATION TO RUN, ALSO NEEDS TESTING AND TALKING THE EXACT FORMAT
-#BUT I THINK THAT THE MAIN IDEA IS THERE
 
 def checking_highways_congestions (highways, congestions):
     if len (highways) != len (congestions):
@@ -405,10 +438,13 @@ def test():
             print("la congestió modificada aquí ",graph[path_start][path_end][k]['congestion'])
         j+=1
     print (path)'''
+    path= ox.shortest_path(di_graph,390227138, 356295256)
+    print(path)
 
-    i_graph= build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT) #no funciona pq el path es queda encallat en una iteració on va imprimint sempre
+    #i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT) #no funciona pq el path es queda encallat en una iteració on va imprimint sempre
     #el mateix node
-    #i_graph= fast_build(di_graph, highways,congestions, ARBITRARY, INFINIT)
+    i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
 
 #testing
 test()
+
