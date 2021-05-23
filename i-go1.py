@@ -246,7 +246,7 @@ def bo_build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT): #intento
                     pass
         print('loading congestions ', highway.way_id, "/", len(highways))
 
-    #adding the itime atribute for all edges in the graph 
+    #adding the itime atribute for all edges in the graph
     nx.set_edge_attributes(graph, ARBITRARY, name='itime')
     for node1, node2 in graph.edges():
         length = graph[node1][node2]['length']
@@ -257,8 +257,8 @@ def bo_build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT): #intento
             speed= 30
         congestion = ponderate_congestion(graph[node1][node2]['congestion'])
         graph[node1][node2]['itime'] = length*congestion/(speed)
-    
-    print_graph_info(graph)
+
+    #print_graph_info(graph)
     return graph
 
 
@@ -285,20 +285,22 @@ def checking_highways_congestions (highways, congestions):
     print ("pol puto subnormal")
 
 #crec que el geocode no funciona tan màgicament amb el nom del lloc directament o almenys salta un error per aquest cas
+#efectivament no chuta, la funcio aquesta  si que ho hauria de fer pero no va, l'he treta d'aqui https://geopandas.org/docs/user_guide/data_structures.html
 def get_shortest_path_with_itime(igraph, origin, destination):
-    ori = ox.geocode (origin)
-    dest = ox.geocode (destination)
+    ori = get_nearest_node(igraph, ox.geometries_from_adress(origin))
+    dest = get_nearest_node (igraph, ox.geometries_from_adress(destination))
     return ox.shortest_path(igraph, ori, dest, weight='itime')
 
-#aquí mira't el format d'un path, diria que son els node id's i llavors tu has d'agafar les coordenades dins de l'igraph
 def plot_path(igraph, ipath, SIZE):
     #ploting the data
     iplot = []
     for i in range (len(ipath)):
-        iplot.append ((ipath[i]['x'], ipath[i]['y']))
+        iplot.append ((igraph.nodes[ipath[i]]['x'], igraph.nodes[ipath[i]]['y']))
     m = StaticMap (SIZE, SIZE) #test values
-    line = Line(iplot, 'red', 1)
+    line = Line(iplot, 'red', 15)
     m.add_line(line)
+    print (ipath)
+    print (iplot)
     #saving the image
     image = m.render()
     image.save("your_path.png")
@@ -325,10 +327,7 @@ def test():
     plot_congestions(highways, congestions, 'congestions.png', SIZE)
 
     #checking_highways_congestions (highways, congestions)
-
-
     i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
-    #print_graph_info(i_graph)
 
     # get 'intelligent path' between two addresses and plot it into a PNG image
     ipath = get_shortest_path_with_itime(i_graph, "Campus Nord", "Sagrada Família")
