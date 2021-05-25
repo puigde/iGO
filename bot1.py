@@ -1,24 +1,29 @@
 # importa l'API de Telegram
 import random
 import os
+import osmnx as ox
+import i-go1.py
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from staticmap import StaticMap, CircleMarker
 
-lat = -1
-lon = -1
+INFINITY = 999999
+
+ori_coord = [INFINITY, INFINITY]
 
 def pos(update, context):
     try:
-        lat = float(context.args[0]) #fa falta fer el pas de carrer a coordenades
-        lon = float(context.args[1])
+        ori_coord [0] = float (context.args [0])
+        ori_coord [1] = float (context.args [1])
 
-    except Exception as e:
-        print(e)
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text ='Introdueix un carrer vàlid')
-
+    except:
+        street = context.args [0]
+        for i in range (1, len(context.args)):
+            street += ' '
+            street += context.args[i]
+        coord = ox.geocode (street)
+        ori_coord [0] = coord [1] #lat i lon estan canviats en el geocode
+        ori_coord [1] = coord [0]
 
 # defineix una funció que saluda i que s'executarà quan el bot rebi el missatge /start
 def start(update, context):
@@ -35,22 +40,22 @@ def help (update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=text_help())
 
 def author (update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Fet per Pol Puigdemont Plana i Jan Sallent Bayà")
+    context.bot.send_message(chat_id=update.effective_chat.id, text= "Fet per Pol Puigdemont Plana i Jan Sallent Bayà")
 
 def your_location (update, context):
     try:
-        lat, lon = update.message.location.latitude, update.message.location.longitude
+        ori_coord[1], ori_coord[0] = update.message.location.latitude, update.message.location.longitude #tmb ta canviat
     except Exception as e:
         print(e)
         context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text='💣')
+            text="La localització no s'ha compartit coorectement")
 
-def where (update, context, lat, lon):
-    if (lat != -1 and lon != -1):
+def where (update, context):
+    if (ori_coord[0] != INFINITY and ori_coord[1] != INFINITY):
         fitxer = "%d.png" % random.randint(1000000, 9999999)
         mapa = StaticMap(500, 500)
-        mapa.add_marker(CircleMarker((lon, lat), 'blue', 10))
+        mapa.add_marker(CircleMarker((ori_coord[0], ori_coord[1]), 'blue', 10))
         imatge = mapa.render()
         imatge.save(fitxer)
         context.bot.send_photo(
