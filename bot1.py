@@ -14,6 +14,8 @@ SIZE = 800
 INFINITY = 999999
 origin = [INFINITY, INFINITY, ' ']
 
+graph = i_go.charge_graph()
+
 def pos(update, context):
     try:
         origin[0] = float (context.args [1])
@@ -81,7 +83,7 @@ def go (update, context):
         destination[1] = coord [0]
         destination[2] = street
         fitxer = "your_path.png"
-        i_go.show_path(origin, destination)
+        i_go.make_path(origin, destination, graph)
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(fitxer, 'rb'))
         os.remove(fitxer)
 

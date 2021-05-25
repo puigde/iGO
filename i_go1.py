@@ -230,7 +230,6 @@ def bo_build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT): #intento
                 #alerta aquí abans teníem
                 node1= get_nearest_node(graph, highway.coordinates[i-1])
                 node2= get_nearest_node(graph, highway.coordinates[i])
-
                 try:
                     path= ox.shortest_path(graph, node1, node2, weight='length')
                     #print(path)
@@ -290,17 +289,16 @@ def checking_highways_congestions (highways, congestions):
 #crec que el geocode no funciona tan màgicament amb el nom del lloc directament o almenys salta un error per aquest cas
 #efectivament no chuta, la funcio aquesta  si que ho hauria de fer pero no va, l'he treta d'aqui https://geopandas.org/docs/user_guide/data_structures.html
 def get_shortest_path_with_itime(igraph, origin, destination):
-    origin+=", Barcelona"
-    destination+= ", Barcelona"
-    print(origin)
-    print(destination)
-    ori = ox.geocode(origin)
+    if type (origin) == 'str':
+        origin += ", Barcelona"
+        ori = ox.geocode(origin)
+        print ("passo per aqui")
+    else:
+        ori = [(origin[0]), (origin[1])]
+    destination += ", Barcelona"
     dest = ox.geocode(destination)
-    print(ori)
-    print(dest)
     node_ori= get_nearest_node(igraph, ori, False)
     node_dest= get_nearest_node(igraph, dest, False)
-    print(node_ori, node_dest)
     return ox.shortest_path(igraph, node_ori, node_dest, weight='itime')
 
 def plot_path(igraph, ipath, SIZE):
@@ -309,45 +307,24 @@ def plot_path(igraph, ipath, SIZE):
     for i in range (len(ipath)):
         iplot.append ((igraph.nodes[ipath[i]]['x'], igraph.nodes[ipath[i]]['y']))
     m = StaticMap (SIZE, SIZE) #test values
-    line = Line(iplot, 'red', 15)
+    line = Line(iplot, 'red', 2)
     m.add_line(line)
-    print (ipath)
-    print (iplot)
     #saving the image
     image = m.render()
     image.save("your_path.png")
 
-def test():
-    # loads/downloads graph (using cache) and plot it on the screen
-    if not exists_graph(GRAPH_FILENAME) or not exists_graph(PLOT_GRAPH_FILENAME):
-        graph, di_graph = download_graph(PLACE) #downloads both graph and digraph formats
-        save_graph(di_graph, GRAPH_FILENAME)
-        save_graph(graph, PLOT_GRAPH_FILENAME)
-    else:
-        print("graph already saved, loading...")
-        di_graph = load_graph(GRAPH_FILENAME)
-        graph= load_graph(PLOT_GRAPH_FILENAME) #for printing issues
 
-    #plot_graph(graph) #prints the graph
-
-    #downloads and prints highways
-    highways, n = download_highways(HIGHWAYS_URL) #n is the biggest way_id of the highways
-    plot_highways(highways, 'highways.png', SIZE)
-
-    #downloads and prints congestions
-    congestions = download_congestions(CONGESTIONS_URL, n)
-    plot_congestions(highways, congestions, 'congestions.png', SIZE)
-
-    #checking_highways_congestions (highways, congestions)
-    i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
-
+def make_path(origin, destination, i_graph):
     # get 'intelligent path' between two addresses and plot it into a PNG image
-    ipath = get_shortest_path_with_itime(i_graph, "Taquígraf Martí, 10", "Campus Nord UPC")
+    if origin[2] == ' ':
+        ori_coord = [(origin[0]), (origin[1])]
+        ipath = get_shortest_path_with_itime(i_graph, ori_coord, destination [2])
+    else:
+        ipath = get_shortest_path_with_itime(i_graph, origin[2], destination [2])
+
     plot_path(i_graph, ipath, SIZE)
 
-#testing
-
-def show_path(origin, destination):
+def charge_graph():
     if not exists_graph(GRAPH_FILENAME) or not exists_graph(PLOT_GRAPH_FILENAME):
         graph, di_graph = download_graph(PLACE) #downloads both graph and digraph formats
         save_graph(di_graph, GRAPH_FILENAME)
@@ -364,7 +341,4 @@ def show_path(origin, destination):
     #checking_highways_congestions (highways, congestions)
     i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
 
-    # get 'intelligent path' between two addresses and plot it into a PNG image
-    ipath = get_shortest_path_with_itime(i_graph, origin[2], destination [2])
-    
-    plot_path(i_graph, ipath, SIZE)
+    return i_graph
