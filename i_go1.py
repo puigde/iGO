@@ -191,7 +191,7 @@ def get_nearest_node(graph, pos, reversed=True):
     for node, info in graph.nodes.items():
         if reversed:
             d = haversine((info['x'], info['y']), pos) #aquí diria que y i x estaven a l'inversa de com ho teniem nosaltres
-        else: 
+        else:
             d= haversine((info['y'], info['x']), pos)
         if d < nearest_dist:
             nearest_dist = d
@@ -293,7 +293,7 @@ def get_shortest_path_with_itime(igraph, origin, destination):
     origin+=", Barcelona"
     destination+= ", Barcelona"
     print(origin)
-    print(destination) 
+    print(destination)
     ori = ox.geocode(origin)
     dest = ox.geocode(destination)
     print(ori)
@@ -347,4 +347,24 @@ def test():
 
 #testing
 
-test()
+def show_path(origin, destination):
+    if not exists_graph(GRAPH_FILENAME) or not exists_graph(PLOT_GRAPH_FILENAME):
+        graph, di_graph = download_graph(PLACE) #downloads both graph and digraph formats
+        save_graph(di_graph, GRAPH_FILENAME)
+    else:
+        di_graph = load_graph(GRAPH_FILENAME)
+
+    highways, n = download_highways(HIGHWAYS_URL) #n is the biggest way_id of the highways
+    plot_highways(highways, 'highways.png', SIZE)
+
+    #downloads and prints congestions
+    congestions = download_congestions(CONGESTIONS_URL, n)
+    plot_congestions(highways, congestions, 'congestions.png', SIZE)
+
+    #checking_highways_congestions (highways, congestions)
+    i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
+
+    # get 'intelligent path' between two addresses and plot it into a PNG image
+    ipath = get_shortest_path_with_itime(i_graph, origin[2], destination [2])
+    
+    plot_path(i_graph, ipath, SIZE)
