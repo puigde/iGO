@@ -342,7 +342,7 @@ def test():
     i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
 
     # get 'intelligent path' between two addresses and plot it into a PNG image
-    ipath = get_shortest_path_with_itime(i_graph, "Campus Nord", "Sagrada Família")
+    ipath = get_shortest_path_with_itime(i_graph, "Taquígraf Martí, 10", "Campus Nord UPC")
     plot_path(i_graph, ipath, SIZE)
 
 #testing
