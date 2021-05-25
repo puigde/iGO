@@ -183,13 +183,16 @@ def print_graph_info(graph):
 
 #prova a funció alternativa a la que ve per defecte i utilitza el modul aquell dels collons que hem comentat amb en jordi
 #donat un graph i una posició retorna el node del graph més proper a la posició
-def get_nearest_node(graph, pos):
+def get_nearest_node(graph, pos, reversed=True):
 
     nearest_node = None
     nearest_dist = 99999 # km
 
     for node, info in graph.nodes.items():
-        d = haversine((info['x'], info['y']), pos) #aquí diria que y i x estaven a l'inversa de com ho teniem nosaltres
+        if reversed:
+            d = haversine((info['x'], info['y']), pos) #aquí diria que y i x estaven a l'inversa de com ho teniem nosaltres
+        else: 
+            d= haversine((info['y'], info['x']), pos)
         if d < nearest_dist:
             nearest_dist = d
             nearest_node = node
@@ -287,9 +290,18 @@ def checking_highways_congestions (highways, congestions):
 #crec que el geocode no funciona tan màgicament amb el nom del lloc directament o almenys salta un error per aquest cas
 #efectivament no chuta, la funcio aquesta  si que ho hauria de fer pero no va, l'he treta d'aqui https://geopandas.org/docs/user_guide/data_structures.html
 def get_shortest_path_with_itime(igraph, origin, destination):
-    ori = get_nearest_node(igraph, ox.geometries_from_adress(origin))
-    dest = get_nearest_node (igraph, ox.geometries_from_adress(destination))
-    return ox.shortest_path(igraph, ori, dest, weight='itime')
+    origin+=", Barcelona"
+    destination+= ", Barcelona"
+    print(origin)
+    print(destination) 
+    ori = ox.geocode(origin)
+    dest = ox.geocode(destination)
+    print(ori)
+    print(dest)
+    node_ori= get_nearest_node(igraph, ori, False)
+    node_dest= get_nearest_node(igraph, dest, False)
+    print(node_ori, node_dest)
+    return ox.shortest_path(igraph, node_ori, node_dest, weight='itime')
 
 def plot_path(igraph, ipath, SIZE):
     #ploting the data
@@ -330,7 +342,7 @@ def test():
     i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
 
     # get 'intelligent path' between two addresses and plot it into a PNG image
-    ipath = get_shortest_path_with_itime(i_graph, "Campus Nord", "Sagrada Família")
+    ipath = get_shortest_path_with_itime(i_graph, "Taquígraf Martí, 10", "Campus Nord UPC")
     plot_path(i_graph, ipath, SIZE)
 
 #testing
