@@ -70,15 +70,15 @@ def adjust_coordinates(highways):
     for highway in highways:
         highway[1] = highway[1].split(',')
         i=0
-        newcord=[]
+        newcoord=[]
         while (i < len(highway[1])): #highway[1] are the coordinates
             x = float (highway[1][i])
             i += 1
             y = float (highway[1][i])
             i += 1
-            pair= (x,y)
-            newcord.append(pair)
-        highway[1]= newcord
+            coord= (x,y)
+            newcoord.append(coord)
+        highway[1]= newcoord
     return
 
 
@@ -91,7 +91,7 @@ def download_highways(HIGHWAYS_URL): #versió utilitzant panda, trobo que queda 
     for highway in highways:
         if (n < highway [0]):
             n = highway[0]
-    hw = [Highway(-1, (-1, -1))] * n #list of namedtuple highways
+    hw = [Highway(-1, (INFINIT, INFINIT))] * n #list of namedtuple highways
     for highway in highways: #reoorder highways so they're sorted with way_id
         hw [highway[0] - 1] = Highway(highway[0], highway[1])
     return hw, n
@@ -215,7 +215,7 @@ def ponderate_congestion (congestion_type):
         return INFINIT
 
 #seems to be working, we could add a delay for <15 degree turns as suggested in the README and discuss the calibration of the itime factors
-def bo_build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT): #intento fer una altra funció perquè he provat de deubgar la principal però no se que collons l'hi passa
+def build_i_graph(graph, highways, congestions, ARBITRARY, INFINIT): #intento fer una altra funció perquè he provat de deubgar la principal però no se que collons l'hi passa
     nx.set_edge_attributes(graph, ARBITRARY, name='congestion')
     #print_graph_info(graph)
     nopath_counter=0
@@ -289,15 +289,15 @@ def checking_highways_congestions (highways, congestions):
 #crec que el geocode no funciona tan màgicament amb el nom del lloc directament o almenys salta un error per aquest cas
 #efectivament no chuta, la funcio aquesta  si que ho hauria de fer pero no va, l'he treta d'aqui https://geopandas.org/docs/user_guide/data_structures.html
 def get_shortest_path_with_itime(igraph, origin, destination):
-    if type (origin) == 'str':
+    if type (origin) == str:
         origin += ", Barcelona"
         ori = ox.geocode(origin)
-        print ("passo per aqui")
+        node_ori= get_nearest_node(igraph, ori, False)
     else:
         ori = [(origin[0]), (origin[1])]
+        node_ori= get_nearest_node(igraph, ori, True)
     destination += ", Barcelona"
     dest = ox.geocode(destination)
-    node_ori= get_nearest_node(igraph, ori, False)
     node_dest= get_nearest_node(igraph, dest, False)
     return ox.shortest_path(igraph, node_ori, node_dest, weight='itime')
 
@@ -316,15 +316,10 @@ def plot_path(igraph, ipath, SIZE):
 
 def make_path(origin, destination, i_graph):
     # get 'intelligent path' between two addresses and plot it into a PNG image
-    if origin[2] == ' ':
-        ori_coord = [(origin[0]), (origin[1])]
-        ipath = get_shortest_path_with_itime(i_graph, ori_coord, destination [2])
-    else:
-        ipath = get_shortest_path_with_itime(i_graph, origin[2], destination [2])
-
+    ipath = get_shortest_path_with_itime(i_graph, origin, destination)
     plot_path(i_graph, ipath, SIZE)
 
-def charge_graph():
+def prepare_i_graph():
     if not exists_graph(GRAPH_FILENAME) or not exists_graph(PLOT_GRAPH_FILENAME):
         graph, di_graph = download_graph(PLACE) #downloads both graph and digraph formats
         save_graph(di_graph, GRAPH_FILENAME)
@@ -332,13 +327,10 @@ def charge_graph():
         di_graph = load_graph(GRAPH_FILENAME)
 
     highways, n = download_highways(HIGHWAYS_URL) #n is the biggest way_id of the highways
-    plot_highways(highways, 'highways.png', SIZE)
-
     #downloads and prints congestions
     congestions = download_congestions(CONGESTIONS_URL, n)
-    plot_congestions(highways, congestions, 'congestions.png', SIZE)
 
     #checking_highways_congestions (highways, congestions)
-    i_graph= bo_build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
+    i_graph = build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
 
     return i_graph

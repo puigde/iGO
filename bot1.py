@@ -3,7 +3,6 @@ import random
 import os
 import osmnx as ox
 import i_go1 as i_go
-import collections
 
 #Street = collections.namedtuple('Street', ['coor_x', 'coord_y', 'name']) # Tram
 
@@ -12,9 +11,11 @@ from staticmap import StaticMap, CircleMarker
 
 SIZE = 800
 INFINITY = 999999
-origin = [INFINITY, INFINITY, ' ']
 
-graph = i_go.charge_graph()
+
+
+origin = [INFINITY, INFINITY, ' ']
+graph = i_go.prepare_i_graph()
 
 def pos(update, context):
     try:
@@ -51,6 +52,7 @@ def author (update, context):
 def your_location (update, context):
     try:
         origin[1], origin[0] = update.message.location.latitude, update.message.location.longitude #tmb ta canviat
+        origin[2] = ' '
     except Exception as e:
         print(e)
         context.bot.send_message(
@@ -77,13 +79,12 @@ def go (update, context):
         for i in range (1, len(context.args)):
             street += ' '
             street += context.args[i]
-        coord = ox.geocode (street)
-        destination = [INFINITY, INFINITY, ' ']
-        destination[0] = coord [1] #lat i lon estan canviats en el geocode
-        destination[1] = coord [0]
-        destination[2] = street
+        destination = street
         fitxer = "your_path.png"
-        i_go.make_path(origin, destination, graph)
+        if (origin[2] == ' '):
+            i_go.make_path([origin[0], origin[1]], destination, graph)
+        else:
+            i_go.make_path(origin[2], destination, graph)
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(fitxer, 'rb'))
         os.remove(fitxer)
 
