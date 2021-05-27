@@ -13,7 +13,7 @@ from staticmap import StaticMap, CircleMarker
 
 SIZE = 800
 INFINITY = 999999
-#graph = i_go.prepare_i_graph() #carrega el graph per a tothom
+graph = i_go.prepare_i_graph() #carrega el graph per a tothom
 
 
 def pos(update, context):
@@ -72,19 +72,14 @@ def where (update, context):
     print(context.user_data[key])
     try:
         origin = context.user_data [key]
-        print('funciona ')
         fitxer = "%d.png" % random.randint(1000000, 9999999)
         mapa = StaticMap(500, 500)
         mapa.add_marker(CircleMarker((origin[0], origin[1]), 'blue', 10))
-        print('funciona 2')
         imatge = mapa.render()
-        print('funciona 2.5')
         imatge.save(fitxer)
-        print('funciona 3')
         context.bot.send_photo(
             chat_id=update.effective_chat.id,
             photo=open(fitxer, 'rb'))
-        print('funciona 4')
         os.remove(fitxer)
     except Exception as e:
         print(e)
@@ -127,3 +122,4 @@ dispatcher.add_handler(MessageHandler(Filters.location, your_location))
 
 # engega el bot
 updater.start_polling()
+updater.idle()
