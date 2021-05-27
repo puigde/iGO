@@ -192,7 +192,7 @@ def get_nearest_node(graph, pos, reversed=True):
         if reversed:
             d = haversine((info['x'], info['y']), pos) #aquí diria que y i x estaven a l'inversa de com ho teniem nosaltres
         else:
-            d= haversine((info['y'], info['x']), pos)
+            d= haversine((info['y'], info['x']), pos) #pel geocode 
         if d < nearest_dist:
             nearest_dist = d
             nearest_node = node
@@ -288,14 +288,14 @@ def checking_highways_congestions (highways, congestions):
 
 #crec que el geocode no funciona tan màgicament amb el nom del lloc directament o almenys salta un error per aquest cas
 #efectivament no chuta, la funcio aquesta  si que ho hauria de fer pero no va, l'he treta d'aqui https://geopandas.org/docs/user_guide/data_structures.html
-def get_shortest_path_with_itime(igraph, origin, destination):
+def get_shortest_path_with_itime(igraph, origin, destination): #prec: destination is a string with a street name
     if type (origin) == str:
         origin += ", Barcelona"
         ori = ox.geocode(origin)
         node_ori= get_nearest_node(igraph, ori, False)
     else:
         ori = [(origin[0]), (origin[1])]
-        node_ori= get_nearest_node(igraph, ori, True)
+        node_ori= get_nearest_node(igraph, ori)
     destination += ", Barcelona"
     dest = ox.geocode(destination)
     node_dest= get_nearest_node(igraph, dest, False)
@@ -334,3 +334,6 @@ def prepare_i_graph():
     i_graph = build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
 
     return i_graph
+
+graph= prepare_i_graph()
+make_path( 'Campus Nord', 'Sagrada Família', graph)
