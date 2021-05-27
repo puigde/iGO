@@ -198,20 +198,11 @@ def get_nearest_node(graph, pos, reversed=True):
             nearest_node = node
     return nearest_node
 
-def ponderate_congestion (congestion_type):
-    if congestion_type == 0:
-        return 1.25 #aixo vol dir k no te info llavors quin valor li donem??
-    elif congestion_type == 1:
-        return 1
-    elif congestion_type == 2:
-        return 1.25
-    elif congestion_type == 3:
-        return 1.5
-    elif congestion_type == 4:
-        return 2
-    elif congestion_type == 5:
-        return 3
-    else:
+def ponderate_congestion (congestion_type): #més elegant 
+    factor= [1.25, 1, 1.25, 1.5, 2, 3, INFINIT]
+    try:
+        return factor[congestion_type]
+    except:
         return INFINIT
 
 #seems to be working, we could add a delay for <15 degree turns as suggested in the README and discuss the calibration of the itime factors
