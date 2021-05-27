@@ -126,6 +126,8 @@ def plot_congestions (highways, congestions, filename,  SIZE):
     m = StaticMap (SIZE, SIZE)
     for highway in highways:
         #only existing highways must be painted
+        
+        #posar aixo en format llista, més elegant
         if highway.way_id != -1:
             congestion_type = congestions[highway.way_id - 1].congestion
             if congestion_type == 0:
