@@ -1,3 +1,4 @@
+#implementar els graus de carrers + un plot congestions + els punts d'inici i final a la ruta
 # importa l'API de Telegram
 import random
 import os
@@ -12,17 +13,14 @@ from staticmap import StaticMap, CircleMarker
 
 SIZE = 800
 INFINITY = 999999
-
-
-Origin = collections.namedtuple ('Origin', ['coord', 'name'])
-graph = i_go.prepare_i_graph()
+#graph = i_go.prepare_i_graph() #carrega el graph per a tothom
 
 
 def pos(update, context):
-    origin = Origin([INFINITY, INFINITY], ' ')
+    origin = [INFINITY, INFINITY]
     try:
-        origin.coord[0] = float (context.args [1])
-        origin.coord[1] = float (context.args [0])
+        origin[0] = float (context.args [1])
+        origin[1] = float (context.args [0])
 
     except:
         street = context.args [0]
@@ -30,12 +28,12 @@ def pos(update, context):
             street += ' '
             street += context.args[i]
         coord = ox.geocode (street)
-        origin.coord[0] = coord [1] #lat i lon estan canviats en el geocode
-        origin.coord[1] = coord [0]
-        origin.name = street
-    key = update.effective_chat.username
+        origin[0] = coord [1] #lat i lon estan canviats en el geocode
+        origin[1] = coord [0]
+    key = update.effective_chat.id
     value = origin
     context.user_data[key] = value
+    print(context.user_data[key])
 
 # defineix una funció que saluda i que s'executarà quan el bot rebi el missatge /start
 def start(update, context):
@@ -55,13 +53,13 @@ def author (update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text= "Fet per Pol Puigdemont Plana i Jan Sallent Bayà")
 
 def your_location (update, context):
-    origin = Origin([INFINITY, INFINITY], ' ')
+    origin = [INFINITY, INFINITY]
     try:
-        origin.coord[1], origin.coord[0] = update.message.location.latitude, update.message.location.longitude #tmb ta canviat
-        origin.name = ' '
-        key = update.effective_chat.username
+        origin[1], origin[0] = update.message.location.latitude, update.message.location.longitude #tmb ta canviat
+        key = update.effective_chat.id
         value = origin
         context.user_data[key] = value
+        print(context.user_data[key])
     except Exception as e:
         print(e)
         context.bot.send_message(
@@ -70,39 +68,41 @@ def your_location (update, context):
 
 def where (update, context):
 
-    key = update.effective_chat.username
+    key = update.effective_chat.id
+    print(context.user_data[key])
     try:
         origin = context.user_data [key]
-    except:
+        print('funciona ')
+        fitxer = "%d.png" % random.randint(1000000, 9999999)
+        mapa = StaticMap(500, 500)
+        mapa.add_marker(CircleMarker((origin[0], origin[1]), 'blue', 10))
+        print('funciona 2')
+        imatge = mapa.render()
+        print('funciona 2.5')
+        imatge.save(fitxer)
+        print('funciona 3')
+        context.bot.send_photo(
+            chat_id=update.effective_chat.id,
+            photo=open(fitxer, 'rb'))
+        print('funciona 4')
+        os.remove(fitxer)
+    except Exception as e:
+        print(e)
         context.bot.send_message(chat_id=update.effective_chat.id, text ='Necessito que em comparteixis la teva localització')
 
-    #if (origin.coord[0] != INFINITY and origin.coord[1] != INFINITY):
-    fitxer = "%d.png" % random.randint(1000000, 9999999)
-    mapa = StaticMap(500, 500)
-    mapa.add_marker(CircleMarker((origin[0], origin[1]), 'blue', 10))
-    imatge = mapa.render()
-    imatge.save(fitxer)
-    context.bot.send_photo(
-        chat_id=update.effective_chat.id,
-        photo=open(fitxer, 'rb'))
-    os.remove(fitxer)
-    #else :
-    #    context.bot.send_message(chat_id=update.effective_chat.id, text ='Necessito que em comparteixis la teva localització')
-
 def go (update, context):
-    key = update.effective_chat.username
+    key = update.effective_chat.id
     origin = context.user_data [key]
-    if (origin.coord[0]!= INFINITY and origin.coord[1] != INFINITY):
+    if (origin[0]!= INFINITY and origin[1] != INFINITY):
         street = context.args [0]
         for i in range (1, len(context.args)):
             street += ' '
             street += context.args[i]
+
         destination = street
         fitxer = "your_path.png"
-        if (origin.street == ' '):
-            i_go.make_path(origin.coord, destination, graph)
-        else:
-            i_go.make_path(origin.name, destination, graph)
+        
+        i_go.make_path(origin, destination, graph)
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(fitxer, 'rb'))
         os.remove(fitxer)
 

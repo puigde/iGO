@@ -325,6 +325,7 @@ def prepare_i_graph():
         save_graph(di_graph, GRAPH_FILENAME)
     else:
         di_graph = load_graph(GRAPH_FILENAME)
+        graph= load_graph(PLOT_GRAPH_FILENAME)
 
     highways, n = download_highways(HIGHWAYS_URL) #n is the biggest way_id of the highways
     #downloads and prints congestions
@@ -334,6 +335,3 @@ def prepare_i_graph():
     i_graph = build_i_graph(di_graph, highways,congestions, ARBITRARY, INFINIT)
 
     return i_graph
-
-graph= prepare_i_graph()
-make_path( 'Campus Nord', 'Sagrada Família', graph)
