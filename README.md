@@ -26,6 +26,7 @@ Let's activate the bot, you can execute *bot.py* in the terminal using python3:
 python3 bot.py
 ```
 <br /> 
+
 `NOTE:` if a message pops up saying that the bot is already on it's because the bot is running through another computer, do not worry you can use it anyways! Sadly we currently don't have the resources to keep the bot running 24/7 but it doesn't need a huge amount of resources so you can do it with no worries.
 
 `NOTE:`if you are the first user executing the code you might need to wait a few seconds or even a minute if your computer is slower to let the bot get and arrange the data.
@@ -36,7 +37,9 @@ python3 bot.py
 Now you can start chatting with the bot, type */start* in the chat and the bot will present itself and offer you some help on usage in case you need it. To enable route generation you might want to share your location with the bot so it knows where you are, you can do so with the share location feature that the telegram app has.
 
 <br /> 
+
 `CURRENT BOT FEATURES:`
+
 * /author -> gets the names of the authors of the bot
 * /go <destination> -> shows a map with the fastest route from your location to the indicated destination
 * /where -> shows a picture of your current location (the one you shared, this version does not have a 'real time GPS implemented')
