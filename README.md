@@ -38,15 +38,19 @@ Now you can start chatting with the bot, type */start* in the chat and the bot w
 <br /> 
 
 `CURRENT BOT FEATURES:`
+* /start -> initiates the conversation
+* /help -> gets help
 * /author -> gets the names of the authors of the bot
 * /go <destination> -> shows a map with the fastest route from your location to the indicated destination
 * /where -> shows a picture of your current location (the one you shared, this version does not have a 'real time GPS implemented')
   
-Wonderful! now that you know how to make the iGo bot work you will be the fastest.
+Wonderful! now that you know how to use the bot you will be the fastest.
 
 ---
   
-## Help with installation-> some references:
+## Help with installation, some references:
+* [Osmnx installation](https://github.com/gboeing/osmnx)
+* [NetworkX installation](https://networkx.org/documentation/stable/install.html)
 
 
 
