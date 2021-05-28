@@ -4,16 +4,16 @@ import random
 import os
 import i_go1 as i_go
 import osmnx as ox
-import collections
-
-#Street = collections.namedtuple('Street', ['coor_x', 'coord_y', 'name']) # Tram
+from datetime import datetime, date, timedelta
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from staticmap import StaticMap, CircleMarker
 
 SIZE = 800
 INFINITY = 999999
-graph = i_go.prepare_i_graph() #carrega el graph per a tothom
+
+key_time = random.randint(1000000, 9999999)
+key_graph = random.randint(1000000, 9999999)
 
 
 def pos(update, context):
@@ -33,7 +33,6 @@ def pos(update, context):
     key = update.effective_chat.id
     value = origin
     context.user_data[key] = value
-    print(context.user_data[key])
 
 # defineix una funció que saluda i que s'executarà quan el bot rebi el missatge /start
 def start(update, context):
@@ -59,17 +58,12 @@ def your_location (update, context):
         key = update.effective_chat.id
         value = origin
         context.user_data[key] = value
-        print(context.user_data[key])
-    except Exception as e:
-        print(e)
-        context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="La localització no s'ha compartit correctement")
+    except:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="La localització no s'ha compartit correctement")
 
 def where (update, context):
 
     key = update.effective_chat.id
-    print(context.user_data[key])
     try:
         origin = context.user_data [key]
         fitxer = "%d.png" % random.randint(1000000, 9999999)
@@ -81,23 +75,30 @@ def where (update, context):
             chat_id=update.effective_chat.id,
             photo=open(fitxer, 'rb'))
         os.remove(fitxer)
-    except Exception as e:
-        print(e)
+    except:
         context.bot.send_message(chat_id=update.effective_chat.id, text ='Necessito que em comparteixis la teva localització')
+
 
 def go (update, context):
     key = update.effective_chat.id
     origin = context.user_data [key]
     if (origin[0]!= INFINITY and origin[1] != INFINITY):
+        try:
+            new_time = datetime.now()
+            if new_time - context.user_data[key_time] < timedelta (minutes = 5):
+                context.bot.send_message(chat_id=update.effective_chat.id, text="Estem recalculant les congestions, espera uns segons")
+                context.user_data[key_time] = datetime.now()
+                context.user_data[key_graph] =  i_go.prepare_i_graph()
+        except:
+                context.user_data[key_time] = datetime.now()
+                context.user_data[key_graph] =  i_go.prepare_i_graph()
         street = context.args [0]
         for i in range (1, len(context.args)):
             street += ' '
             street += context.args[i]
-
         destination = street
         fitxer = "your_path.png"
-        
-        i_go.make_path(origin, destination, graph)
+        i_go.make_path(origin, destination, context.user_data[key_graph])
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(fitxer, 'rb'))
         os.remove(fitxer)
 
@@ -120,6 +121,5 @@ dispatcher.add_handler(CommandHandler('where', where))
 dispatcher.add_handler(CommandHandler('go', go))
 dispatcher.add_handler(MessageHandler(Filters.location, your_location))
 
-# engega el bot
 updater.start_polling()
 updater.idle()
