@@ -1,72 +1,72 @@
-#implementar els graus de carrers + un plot congestions + els punts d'inici i final a la ruta
-# importa l'API de Telegram
 import random
 import os
-import i_go1 as i_go
+import i_go as i_go
 import osmnx as ox
 from datetime import datetime, date, timedelta
-
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from staticmap import StaticMap, CircleMarker
 
 SIZE = 800
 INFINITY = 999999
 
+#keys of the map necessary to store our igraph and the time it has been made
 key_time = random.randint(1000000, 9999999)
 key_graph = random.randint(1000000, 9999999)
 
-
-def pos(update, context):
-    origin = [INFINITY, INFINITY]
-    try:
-        origin[0] = float (context.args [1])
-        origin[1] = float (context.args [0])
-
-    except:
-        street = context.args [0]
-        for i in range (1, len(context.args)):
-            street += ' '
-            street += context.args[i]
-        coord = ox.geocode (street)
-        origin[0] = coord [1] #lat i lon estan canviats en el geocode
-        origin[1] = coord [0]
-    key = update.effective_chat.id
-    value = origin
-    context.user_data[key] = value
-
-# defineix una funció que saluda i que s'executarà quan el bot rebi el missatge /start
+#Sends a message introducing our bot
 def start(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hola! Soc el bot i-go. Introdueix la comanda que desitgis. Si no saps quines comandes fer servir, escrivint /help al xat et podré ajudar")
 
+#Returns the text necessary for the function help
 def text_help():
     help = "Escrivint /author obtindràs el nom dels autors d'aquest bot.\n \n"
     help += "Escrivint /go destí (exemple: /go Sagrada Família) se't mostrarà un mapa indicant la ruta més curta des de la teva posició actual.\n \n"
     help += "Escrivint /where obtindràs la posició on et trobes ara mateix."
     return help
 
-
+#Sends a message with all the possible commands
 def help (update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=text_help())
 
+#Sends a message with the name of the authors of the bot
 def author (update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text= "Fet per Pol Puigdemont Plana i Jan Sallent Bayà")
 
+#Stores the location of the user
 def your_location (update, context):
-    origin = [INFINITY, INFINITY]
+    #stores in a map the location of the user using the id of the user as the key
     try:
-        origin[1], origin[0] = update.message.location.latitude, update.message.location.longitude #tmb ta canviat
         key = update.effective_chat.id
-        value = origin
-        context.user_data[key] = value
+        context.user_data[key] = [update.message.location.longitude, update.message.location.latitude]
     except:
         context.bot.send_message(chat_id=update.effective_chat.id, text="La localització no s'ha compartit correctement")
 
-def where (update, context):
-
+#Private function that stores the location of a user without sharing the location
+#Precondition: if the location is send in coordinates, first parameter must be the latitude and the second one must be longitude
+def _pos_ (update, context):
+    try:
+        origin = [float(context.args [1]), float(context.args [0])]
+        #latitude and longitude are changed because in this program longitude is the first parameter and latitude the second one
+    except:
+        street = context.args
+        #for i in range (1, len(context.args)):
+        #    street += ' '
+        #    street += context.args[i]
+        street += ", Barcelona"
+        coord = ox.geocode (street)
+        origin = [coord[1], coord[0]]
     key = update.effective_chat.id
+    context.user_data[key] = origin
+    #latitude and longitude are changed because in this program longitude is the first parameter and latitude the second one
+
+#Sends a photo of the location of the user
+#Precondition: location has to be send previously or function /pos has to be used
+def where (update, context):
+    key = update.effective_chat.id #we use the id of the user as the key of the map
     try:
         origin = context.user_data [key]
-        fitxer = "%d.png" % random.randint(1000000, 9999999)
+        fitxer = "%d.png" % random.randint(1000000, 9999999) #generate a random name for the photo
+        #photo is made, send and then removed
         mapa = StaticMap(500, 500)
         mapa.add_marker(CircleMarker((origin[0], origin[1]), 'blue', 10))
         imatge = mapa.render()
@@ -76,7 +76,7 @@ def where (update, context):
             photo=open(fitxer, 'rb'))
         os.remove(fitxer)
     except:
-        context.bot.send_message(chat_id=update.effective_chat.id, text ='Necessito que em comparteixis la teva localització')
+        context.bot.send_message(chat_id=update.effective_chat.id, text = 'Necessito que em comparteixis la teva localització')
 
 
 def go (update, context):

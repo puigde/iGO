@@ -4,6 +4,8 @@
 #A les funcion plot_highways i plot_congestions hi ha el parametre congestions.png / highways.png k em dona error si el poso, l'he tret i tot forula
 #mira si a tu et va be sense o és alló de que o ho he de fer de una forma i tu d'una altre
 
+#implementar els graus de carrers + un plot congestions + els punts d'inici i final a la ruta
+
 from typing import NoReturn
 from networkx.algorithms.bipartite.matching import INFINITY
 from networkx.classes import digraph
@@ -126,7 +128,7 @@ def plot_congestions (highways, congestions, filename,  SIZE):
     m = StaticMap (SIZE, SIZE)
     for highway in highways:
         #only existing highways must be painted
-        
+
         #posar aixo en format llista, més elegant
         if highway.way_id != -1:
             congestion_type = congestions[highway.way_id - 1].congestion
@@ -194,13 +196,13 @@ def get_nearest_node(graph, pos, reversed=True):
         if reversed:
             d = haversine((info['x'], info['y']), pos) #aquí diria que y i x estaven a l'inversa de com ho teniem nosaltres
         else:
-            d= haversine((info['y'], info['x']), pos) #pel geocode 
+            d= haversine((info['y'], info['x']), pos) #pel geocode
         if d < nearest_dist:
             nearest_dist = d
             nearest_node = node
     return nearest_node
 
-def ponderate_congestion (congestion_type): #més elegant 
+def ponderate_congestion (congestion_type): #més elegant
     factor= [1.25, 1, 1.25, 1.5, 2, 3, INFINIT]
     try:
         return factor[congestion_type]
