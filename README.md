@@ -35,7 +35,6 @@ python3 bot.py
 
 <br /> 
 Now you can start chatting with the bot, type */start* in the chat and the bot will present itself and offer you some help on usage in case you need it. To enable route generation you might want to share your location with the bot so it knows where you are, you can do so with the share location feature that the telegram app has.
-
 <br /> 
 
 `CURRENT BOT FEATURES:`
