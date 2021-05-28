@@ -19,6 +19,7 @@ Once the requirements are fullfilled you can download the archives containing th
 
 <br /> 
 To use the bot, first of all open your telegram account and add the bot to your chats, you can do so by clicking the following link:
+
 [Start chatting with our bot!](https://t.me/igo_Pol_Jan_bot)
 
 Let's activate the bot, you can execute *bot.py* in the terminal using python3:
