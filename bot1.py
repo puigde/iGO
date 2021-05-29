@@ -15,13 +15,13 @@ key_graph = random.randint(1000000, 9999999)
 
 #Sends a message introducing our bot
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hola! Soc el bot i-go. Introdueix la comanda que desitgis. Si no saps quines comandes fer servir, escrivint /help al xat et podré ajudar")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Hi! I am the iGo bot. Type the command you desire. If you don't know which commands to use, write /help in the chat and I'll give you some instructions")
 
 #Returns the text necessary for the function help
 def text_help():
-    help = "Escrivint /author obtindràs el nom dels autors d'aquest bot.\n \n"
-    help += "Escrivint /go destí (exemple: /go Sagrada Família) se't mostrarà un mapa indicant la ruta més curta des de la teva posició actual.\n \n"
-    help += "Escrivint /where obtindràs la posició on et trobes ara mateix."
+    help = "By writing /author you will obtain the names of the authors of the bot.\n \n"
+    help += "By writing /go destination (for example: /go Sagrada Família) a map indicating the fastest route from your current position to Sagrada Família will be shown)\n \n"
+    help += "By writing /where you will obtain an image with your current position indicated"
     return help
 
 #Sends a message with all the possible commands
@@ -30,7 +30,7 @@ def help (update, context):
 
 #Sends a message with the name of the authors of the bot
 def author (update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text= "Fet per Pol Puigdemont Plana i Jan Sallent Bayà")
+    context.bot.send_message(chat_id=update.effective_chat.id, text= "Made by Pol Puigdemont Plana and Jan Sallent Bayà")
 
 #Stores the location of the user
 def your_location (update, context):
@@ -39,11 +39,11 @@ def your_location (update, context):
         key = update.effective_chat.id
         context.user_data[key] = [update.message.location.longitude, update.message.location.latitude]
     except:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="La localització no s'ha compartit correctement")
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Your location wasn't shared succesfully")
 
 #Private function that stores the location of a user without sharing the location
 #Precondition: if the location is send in coordinates, first parameter must be the latitude and the second one must be longitude
-def _pos_ (update, context):
+def pos (update, context):
     try:
         origin = [float(context.args [1]), float(context.args [0])]
         #latitude and longitude are changed because in this program longitude is the first parameter and latitude the second one
@@ -76,7 +76,7 @@ def where (update, context):
             photo=open(fitxer, 'rb'))
         os.remove(fitxer)
     except:
-        context.bot.send_message(chat_id=update.effective_chat.id, text = 'Necessito que em comparteixis la teva localització')
+        context.bot.send_message(chat_id=update.effective_chat.id, text = "I need you to share your current location to me")
 
 
 def go (update, context):
@@ -86,7 +86,7 @@ def go (update, context):
         try:
             new_time = datetime.now()
             if new_time - context.user_data[key_time] < timedelta (minutes = 5):
-                context.bot.send_message(chat_id=update.effective_chat.id, text="Estem recalculant les congestions, espera uns segons")
+                context.bot.send_message(chat_id=update.effective_chat.id, text="Recalculating congestions, please wait a few seconds")
                 context.user_data[key_time] = datetime.now()
                 context.user_data[key_graph] =  i_go.prepare_i_graph()
         except:
@@ -103,7 +103,7 @@ def go (update, context):
         os.remove(fitxer)
 
     else :
-        context.bot.send_message(chat_id=update.effective_chat.id, text ='Necessito que em comparteixis la teva localització')
+        context.bot.send_message(chat_id=update.effective_chat.id, text ="I need you to share your current location to me")
 
 # declara una constant amb el access token que llegeix de token.txt
 TOKEN = open('token.txt').read().strip()
