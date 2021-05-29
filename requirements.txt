@@ -11,3 +11,4 @@ staticmap==0.5.5
 urllib3==1.25.8
 python-telegram-bot==13.5
 pytz==2019.3
+tqdm==4.61.0
