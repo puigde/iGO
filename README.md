@@ -28,7 +28,7 @@ python3 bot.py
 ```
 <br /> 
 
-`NOTE:` if a message pops up saying that the bot is already on it's because the bot is running through another computer, do not worry you can use it anyways! Sadly we currently don't have the resources to keep the bot running 24/7 but it doesn't need a huge amount of resources so you can do it with no worries.
+`NOTE:` if a message pops up saying that the bot is already on it's because the bot is running through another computer, do not worry you can use it anyways! Sadly we currently don't have the means to keep the bot running 24/7 but it doesn't need a huge amount of resources so you can do it with no worries.
 
 `NOTE:`if you are the first user executing the code you might need to wait a few seconds or even a minute if your computer is slower to let the bot get and arrange the data.
 
