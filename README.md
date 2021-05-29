@@ -55,13 +55,27 @@ Wonderful! let's see a real example.
 
 
 Congratulations, you are ready to go! 🚙 
-  
+
 ---
   
 ## Help with installation, some references:
 * [Osmnx installation](https://github.com/gboeing/osmnx)
 * [NetworkX installation](https://networkx.org/documentation/stable/install.html)
+* [Pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
 
+---
+## Development overview:
+The program has been developed using the python language. We have used some libraries in order to accomplish the needed tasks.
+First of all we developed the igo.py module which is used by the bot and accomplishes 3 main tasks:
+1. Getting the data 
+2. Formating and grouping the data 
+3. Using the data, module functionalities
 
+Then, we developed the actual bot which let's the user access module functionalities in a very interactive and comfortable way through the telegram chat.
 
-*developed by Pol Puigdemont and Jan Sallent, Data Science and Engineering students from UPC*
+To get a deeper insight of our thought process and how the code works check the documentation of both i_go.py and bot.py 😄
+ 
+Working on iGo was very interesting as it was our first time managing a team project of this magnitude. 
+
+  
+*developed by Pol Puigdemont and Jan Sallent, Data Science and Engineering students from UPC, 2021*
