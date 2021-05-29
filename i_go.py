@@ -14,7 +14,7 @@ import pandas as pd
 from staticmap import StaticMap, Line, CircleMarker
 from tqdm import tqdm, trange
 
-#we have glob   
+#global variables defined  
 PLACE = 'Barcelona, Catalonia'
 GRAPH_FILENAME = 'barcelona.graph'
 HIGHWAYS_URL = 'https://opendata-ajuntament.barcelona.cat/data/dataset/1090983a-1c40-4609-8620-14ad49aae3ab/resource/1d6c814c-70ef-4147-aa16-a49ddb952f72/download/transit_relacio_trams.csv'
