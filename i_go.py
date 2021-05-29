@@ -1,6 +1,3 @@
-
-#mirar d'implementar un plot congestions + els punts d'inici i final a la ruta
-
 from typing import NoReturn
 from networkx.algorithms.bipartite.matching import INFINITY
 from networkx.classes import digraph
@@ -31,7 +28,7 @@ Congestion= collections.namedtuple('Congestion',['c_id', 'congestion']) #Trànsi
 
 
 def exists_graph(GRAPH_FILENAME):
-    '''Checks wether the graph file has already been downloaded on our directory or not. 
+    '''Checks wether the graph file has already been downloaded on our directory or not.
     Recieves a parameter with the graph file name and returns a boolean indicating the result of the checking.'''
 
     try:
@@ -41,8 +38,8 @@ def exists_graph(GRAPH_FILENAME):
     return True
 
 def download_graph(PLACE):
-    '''Downloads a osmnx graph from a certain place recieved as a parameter. It does so trough two separated formats, 
-    both osmnx graphs but one is a regular graph and the other one is a digraph, for working we will use the digraph 
+    '''Downloads a osmnx graph from a certain place recieved as a parameter. It does so trough two separated formats,
+    both osmnx graphs but one is a regular graph and the other one is a digraph, for working we will use the digraph
     format as it represents all ways of the edges but we also get the regular one for format issues in the plotting of the graph.'''
 
     graph = ox.graph_from_place(PLACE, network_type='drive', simplify=True)
@@ -50,7 +47,7 @@ def download_graph(PLACE):
     return graph, di_graph
 
 def save_graph (graph, GRAPH_FILENAME):
-    '''Saves the downloaded osmnx graph which it recieves using pickle in a indicated filename so we can load it afterwards after 
+    '''Saves the downloaded osmnx graph which it recieves using pickle in a indicated filename so we can load it afterwards after
     having downloaded it once.'''
 
     with open(GRAPH_FILENAME, 'wb') as file:
@@ -63,8 +60,8 @@ def load_graph(GRAPH_FILENAME):
     return graph
 
 def plot_graph(graph, onscreen=False):
-    '''Plots the graph, in the regular graph osmnx datatype, not the digraph, it recieves as a parameter. 
-    The onscreen value indicates if the plotting will be done onscreen (only seems to work for mac users) or 
+    '''Plots the graph, in the regular graph osmnx datatype, not the digraph, it recieves as a parameter.
+    The onscreen value indicates if the plotting will be done onscreen (only seems to work for mac users) or
     the plotting will be saved in a png image (set as default for avoiding errors).'''
 
     if onscreen:
@@ -81,7 +78,7 @@ def adjust_coordinates(highways):
         highway[1] = highway[1].split(',')
         i=0
         newcoord=[]
-        while (i < len(highway[1])): 
+        while (i < len(highway[1])):
             x = float (highway[1][i])
             i += 1
             y = float (highway[1][i])
@@ -92,20 +89,20 @@ def adjust_coordinates(highways):
 
 
 #When referencing highways we don't mean actual highways but relative high-used streets by cars in Barcelona according to the City Hall's dataset
-def download_highways(HIGHWAYS_URL): 
+def download_highways(HIGHWAYS_URL):
     '''Gets, formats and returns highways data from the online Open Data Barcelona dataset, it recieves the URL as a parameter, and stores the data
     into a list of Highways tuples, which contain a 'way_id' parameter that references the id of the highway and a coordinates parameter
-    which contains a list of strings (which will be formated into a list of pairs as seen in the adjust coordinates function) 
+    which contains a list of strings (which will be formated into a list of pairs as seen in the adjust coordinates function)
     with the coordinates of the points that compose the highway. We have decided to use this format because it is very simple to work with
-    and understand position acesses. When a highway has no data arbitrary values are set there, we include the positions no matter what 
+    and understand position acesses. When a highway has no data arbitrary values are set there, we include the positions no matter what
     because then it allows us to match the id's with the traffic congestion data. In this way we occupy some extra positions but we investigated
     it with counters and they are only a few, insignificant in comparison to the total size of the list, this insignificant memory sacrifice
     has been done in exchange for format simpliciry and code undestability, made possible because we studied the given data format before deciding.'''
-    
+
     df = pd.read_csv(HIGHWAYS_URL, usecols = ['Tram', 'Coordenades']) #reads the csv file
     highways= df.values.tolist() #adjusts to list format
     adjust_coordinates(highways) #adjusts coordinates to float
-    n = -1 
+    n = -1
     for highway in highways:
         if (n < highway [0]):
             n = highway[0]
@@ -118,7 +115,7 @@ def download_highways(HIGHWAYS_URL):
 def plot_highways(highways, filename, SIZE):
     '''Gives a visual representation of the highways data on top of a generated StaticMap of Barcelona, which size is indicated as a parameter.
     It also recieves the highways list andthe filename value for saving the image.'''
-   
+
     m = StaticMap (SIZE, SIZE) #test values
     for highway in highways:
         if highway.way_id != -1: #only existing highways must be painted
@@ -181,7 +178,7 @@ def get_nearest_node(graph, pos, nonreversed=True):
     but our datatypes respect the nonreversed format, we will usually use this function with geocode so it's order is set
     as default and we will indicate it manually with the parameter otherwise'''
     nearest_node = None
-    nearest_dist = INFINIT 
+    nearest_dist = INFINIT
 
     for node, info in graph.nodes.items():
         if nonreversed:
@@ -194,7 +191,7 @@ def get_nearest_node(graph, pos, nonreversed=True):
     return nearest_node
 
 def ponderate_congestion (congestion_type):
-    '''Given a congestion type from the values given in the Barcelona dataset we assign a ponderation which will allow us to 
+    '''Given a congestion type from the values given in the Barcelona dataset we assign a ponderation which will allow us to
     calibrate the itime value to take into account traffic congestion to calculate the fastest in a precise way.'''
     factor= [1.25, 1, 1.25, 1.5, 2, 3, INFINIT]
     try:
@@ -203,22 +200,22 @@ def ponderate_congestion (congestion_type):
         return INFINIT
 
 
-def build_i_graph(graph, highways, congestions, avg, INFINIT): 
+def build_i_graph(graph, highways, congestions, avg, INFINIT):
     '''Builds an intelligent graph with with an itime parameter in it's edges that takes into account lenght, max speed allowed,
     and traffic congestion in order to then compute the fastest route between two points for our bot users. It recieves the digraph
     (referenced as graph as always except the download function with format separation), the matched lists of highways and congestions,
-    a value named avg which is the average congestion from all data collected,  which is the value assigned to fill those congestions that we don't 
-    have data for in the dataset and finally our INFINITY parameter.''' 
+    a value named avg which is the average congestion from all data collected,  which is the value assigned to fill those congestions that we don't
+    have data for in the dataset and finally our INFINITY parameter.'''
     nx.set_edge_attributes(graph, int(round(avg)), name='congestion') #add a parameter for edges with our avg. value
 
-    #THE ALGORITHM: 
+    #THE ALGORITHM:
     #For all highways that we have valid data we will add the respective matched congestion value to the graph's edges that represent the highway.
-    #To do so, for each pair of pairs(x,y) of coordinates we get the correspondent nodes and compute the shortest path between them, assuming this is 
+    #To do so, for each pair of pairs(x,y) of coordinates we get the correspondent nodes and compute the shortest path between them, assuming this is
     #the path that we reference in our highway, and for this path we iterate for each pair of nodes and modify the congestion value of the edges
     #that link them with the respective value from the congestions matching the current highway we are iterating on. The complexity for this part
     #of the algorithm that rules the complexity for the whole algorithm is O(h*l*p) h being the size of the highways list, l being the size of the
     #list of coordinates in a highway and p being the size of the shortest path between two coordinates, we have 3 depth levels of iteration. It could
-    #be done faster just by skipping iterations in the second level l and taking just the first and last node but this would be quite imprecise and 
+    #be done faster just by skipping iterations in the second level l and taking just the first and last node but this would be quite imprecise and
     #all the formatting done before would be useless if the edges modified wouldn't match the highways.
 
     for highway in highways:
@@ -234,7 +231,7 @@ def build_i_graph(graph, highways, congestions, avg, INFINIT):
                         graph[path_node1][path_node2]['congestion']= congestions[highway.way_id-1].congestion
                 except nx.NetworkXNoPath: #the graph is not connex, sometimes there's no path possible between two nodes
                     pass
-        
+
         print('loading congestions ', highway.way_id, "/", len(highways))
 
     #Add the itime attribute, iterate all the edges in the graph and compute the itime value that we will take as a reference
@@ -276,8 +273,8 @@ def checking_highways_congestions (highways, congestions):
 
 def get_shortest_path_with_itime(igraph, origin, destination):
     '''Gets the shortest path with itime so it is indeed the fastest path, given our igraph that we have previously built
-    and origin and destination parameters (origin can either be in coordinate format or string with the name of the place, 
-    but there is a precondition that destination is a string with the street name for format issues). When the origin and/or 
+    and origin and destination parameters (origin can either be in coordinate format or string with the name of the place,
+    but there is a precondition that destination is a string with the street name for format issues). When the origin and/or
     destination are given in string format with the name of the place we use the geocode function which returns the coordinates
     of the place given so we can then find the nearest node and finally the fastest path.'''
     if type (origin) == str:
@@ -314,7 +311,7 @@ def make_path(origin, destination, i_graph):
     plot_path(i_graph, ipath, SIZE)
 
 def prepare_i_graph():
-    '''Prepares the intelligent graph for work, if necessary it downloads and saves else it loads and then gets and applys 
+    '''Prepares the intelligent graph for work, if necessary it downloads and saves else it loads and then gets and applys
     highways and congestions data to build the intelligent graph with the itime value which it returns.'''
     if not exists_graph(GRAPH_FILENAME) or not exists_graph(PLOT_GRAPH_FILENAME):
         graph, di_graph = download_graph(PLACE) #downloads both graph and digraph formats
@@ -322,7 +319,7 @@ def prepare_i_graph():
     else:
         di_graph = load_graph(GRAPH_FILENAME)
         graph= load_graph(PLOT_GRAPH_FILENAME)
-    #downloads and plots into png the highways 
+    #downloads and plots into png the highways
     highways, n = download_highways(HIGHWAYS_URL) #n is the biggest way_id of the highways
     #downloads and plots into a png the congestions
     congestions, avg = download_congestions(CONGESTIONS_URL, n)
