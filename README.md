@@ -53,7 +53,8 @@ Wonderful! let's see a real example.
 <img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial1.png" width=40% height=40%>
 <img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial2.png" width=40% height=40%>
 
-  
+
+Congratulations, you are ready to go!
 ---
   
 ## Help with installation, some references:
