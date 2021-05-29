@@ -49,9 +49,10 @@ Wonderful! now that you know how to use the bot you will be the fastest.
 <br /> 
 
 `USAGE EXAMPLE:`
-  
-![Image](https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial1.png?raw=true)
-![Image](https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial2.png?raw=true)
+<img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial1.png" width=50% height=50%>
+<br /> 
+<img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial2.png" width=50% height=50%>
+
   
 ---
   
