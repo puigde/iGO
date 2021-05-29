@@ -20,10 +20,12 @@ graph_info = {
 
 def start(update, context):
     '''Sends a message introducing the bot.'''
+
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hi! I am the iGo bot. Type the command you desire. If you don't know which commands to use, write /help in the chat and I'll give you some possible instructions")
 
 def text_help():
     '''Returns the text necessary for the function help.'''
+
     help = "By writing /author you will obtain the names of the authors of the bot.\n \n"
     help += "By writing /go destination (for example: /go Sagrada Família) a map indicating the fastest route from your current position to Sagrada Família will be shown)\n \n"
     help += "By writing /where you will obtain an image with your current position indicated"
@@ -31,14 +33,17 @@ def text_help():
 
 def help (update, context):
     '''Sends a message with all the possible commands.'''
+
     context.bot.send_message(chat_id=update.effective_chat.id, text=text_help())
 
 def author (update, context):
     '''Sends a message with the name of the authors of the bot.'''
+
     context.bot.send_message(chat_id=update.effective_chat.id, text= "Made by Pol Puigdemont Plana and Jan Sallent Bayà")
 
 def your_location (update, context):
     '''Stores the location of the user.'''
+
     #stores in a map the location of the user using the id of the user as the key
     try:
         key = update.effective_chat.id
@@ -50,6 +55,7 @@ def your_location (update, context):
 def pos (update, context):
     '''Stores the location of a user without sharing the location
     Precondition: if the location is send in coordinates, first parameter must be the latitude and the second one must be longitude.'''
+
     try:
         origin = [float(context.args [1]), float(context.args [0])]
         #latitude and longitude are changed because in i_go module, longitude is the first parameter and latitude is the second one
@@ -68,6 +74,7 @@ def pos (update, context):
 def where (update, context):
     '''Sends a photo of the location of the user
     Precondition: location has to be send previously or function /pos has to be used.'''
+
     key = update.effective_chat.id #we use the id of the user as the key of the map
     try:
         location = context.user_data [key]
@@ -89,6 +96,7 @@ def where (update, context):
 def go (update, context):
     '''Sends a photo showing the shortest path.
     Precondition: location has to be send previously or function /pos has to be used.'''
+    
     try:
         key = update.effective_chat.id
         origin = context.user_data [key]

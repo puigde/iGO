@@ -1,18 +1,17 @@
+import fiona #only necessary if MacOS is used
+import collections
+import urllib
+import osmnx as ox
+import pickle as pl
+import networkx as nx
 from typing import NoReturn
 from networkx.algorithms.bipartite.matching import INFINITY
 from networkx.classes import digraph
 from networkx.generators.classic import path_graph
 from networkx.generators.duplication import partial_duplication_graph
-import fiona #pel mac
-import osmnx as ox
-import pickle as pl
 from haversine import haversine
-import collections
-import urllib
-import pandas as pd #installation with pip3 install pandas
+import pandas as pd
 from staticmap import StaticMap, Line, CircleMarker
-import networkx as nx #potser caldrà instalar l'scipy, jo he fet brew install scipy pq me'l demanava però per wdws no se quina cmmd és
-#import sklearn
 
 PLACE = 'Barcelona, Catalonia'
 GRAPH_FILENAME = 'barcelona.graph'
@@ -23,8 +22,8 @@ PLOT_GRAPH_FILENAME= 'plot_bcn.graph'
 ARBITRARY= 1
 INFINIT= 10000000000
 
-Highway = collections.namedtuple('Highway', ['way_id', 'coordinates']) # Tram
-Congestion= collections.namedtuple('Congestion',['c_id', 'congestion']) #Trànsit
+Highway = collections.namedtuple('Highway', ['way_id', 'coordinates'])
+Congestion = collections.namedtuple('Congestion',['c_id', 'congestion'])
 
 
 def exists_graph(GRAPH_FILENAME):
@@ -55,12 +54,13 @@ def save_graph (graph, GRAPH_FILENAME):
 
 def load_graph(GRAPH_FILENAME):
     '''Loads the graph file from our directory, it recieves the filename and returns the graph.'''
+
     with open(GRAPH_FILENAME, 'rb') as file:
         graph = pl.load(file)
     return graph
 
 def plot_graph(graph, onscreen=False):
-    '''Plots the graph, in the regular graph osmnx datatype, not the digraph, it recieves as a parameter.
+    '''Plots the graph, in the regular graph osmnx datatype, not the digraph, it recieves it as a parameter.
     The onscreen value indicates if the plotting will be done onscreen (only seems to work for mac users) or
     the plotting will be saved in a png image (set as default for avoiding errors).'''
 
@@ -94,7 +94,7 @@ def download_highways(HIGHWAYS_URL):
     into a list of Highways tuples, which contain a 'way_id' parameter that references the id of the highway and a coordinates parameter
     which contains a list of strings (which will be formated into a list of pairs as seen in the adjust coordinates function)
     with the coordinates of the points that compose the highway. We have decided to use this format because it is very simple to work with
-    and understand position acesses. When a highway has no data arbitrary values are set there, we include the positions no matter what
+    and understand position acesses. When a highway has no data, arbitrary values are set there. We include the positions no matter what
     because then it allows us to match the id's with the traffic congestion data. In this way we occupy some extra positions but we investigated
     it with counters and they are only a few, insignificant in comparison to the total size of the list, this insignificant memory sacrifice
     has been done in exchange for format simpliciry and code undestability, made possible because we studied the given data format before deciding.'''
@@ -119,7 +119,7 @@ def plot_highways(highways, filename, SIZE):
     m = StaticMap (SIZE, SIZE) #test values
     for highway in highways:
         if highway.way_id != -1: #only existing highways must be painted
-            line = Line(highway.coordinates, 'red', 1) #highway[2] has to be the list of coordinates in pairs
+            line = Line(highway.coordinates, 'red', 1)
             m.add_line(line)
 
     #saving the image
@@ -149,6 +149,7 @@ def download_congestions(CONGESTIONS_URL, n):
 def plot_congestions (highways, congestions, filename,  SIZE):
     '''Saves a png image of a colored representation of the traffic congestions in the Barcelona map. It recieves the lists
     with the data of the highways and congestions and the filename and size for the image.'''
+
     m = StaticMap (SIZE, SIZE)
     for highway in highways:
        if highway.way_id!=-1: #only highways with existing data must be accessed
@@ -177,14 +178,15 @@ def get_nearest_node(graph, pos, nonreversed=True):
     parameter which indicates positions are given in a (y,x) format instead of (x,y) as some functions work in that way
     but our datatypes respect the nonreversed format, we will usually use this function with geocode so it's order is set
     as default and we will indicate it manually with the parameter otherwise'''
+
     nearest_node = None
     nearest_dist = INFINIT
 
     for node, info in graph.nodes.items():
         if nonreversed:
-            d = haversine((info['x'], info['y']), pos) #aquí diria que y i x estaven a l'inversa de com ho teniem nosaltres
+            d = haversine((info['x'], info['y']), pos)
         else:
-            d= haversine((info['y'], info['x']), pos) #pel geocode
+            d= haversine((info['y'], info['x']), pos)
         if d < nearest_dist:
             nearest_dist = d
             nearest_node = node
@@ -193,7 +195,8 @@ def get_nearest_node(graph, pos, nonreversed=True):
 def ponderate_congestion (congestion_type):
     '''Given a congestion type from the values given in the Barcelona dataset we assign a ponderation which will allow us to
     calibrate the itime value to take into account traffic congestion to calculate the fastest in a precise way.'''
-    factor= [1.25, 1, 1.25, 1.5, 2, 3, INFINIT]
+
+    factor = [1.25, 1, 1.25, 1.5, 2, 3, INFINIT]
     try:
         return factor[congestion_type]
     except:
@@ -202,7 +205,7 @@ def ponderate_congestion (congestion_type):
 
 def build_i_graph(graph, highways, congestions, avg, INFINIT):
     '''Builds an intelligent graph with with an itime parameter in it's edges that takes into account lenght, max speed allowed,
-    and traffic congestion in order to then compute the fastest route between two points for our bot users. It recieves the digraph
+    and traffic congestion in order to then compute the fastest route between two points. It recieves the digraph
     (referenced as graph as always except the download function with format separation), the matched lists of highways and congestions,
     a value named avg which is the average congestion from all data collected,  which is the value assigned to fill those congestions that we don't
     have data for in the dataset and finally our INFINITY parameter.'''
@@ -277,16 +280,22 @@ def get_shortest_path_with_itime(igraph, origin, destination):
     but there is a precondition that destination is a string with the street name for format issues). When the origin and/or
     destination are given in string format with the name of the place we use the geocode function which returns the coordinates
     of the place given so we can then find the nearest node and finally the fastest path.'''
+
     if type (origin) == str:
         origin += ", Barcelona" #we concatenate Barcelona for precision issues with geocode, seems to work better
         ori = ox.geocode(origin)
         node_ori= get_nearest_node(igraph, ori, False)
     else:
-        ori = [(origin[0]), (origin[1])]
+        ori = [origin[0], origin[1]]
         node_ori= get_nearest_node(igraph, ori)
-    destination += ", Barcelona"
-    dest = ox.geocode(destination)
-    node_dest= get_nearest_node(igraph, dest, False)
+
+    if type (destination) == str:
+        destination += ", Barcelona" #we concatenate Barcelona for precision issues with geocode, seems to work better
+        dest = ox.geocode(destination)
+        node_dest= get_nearest_node(igraph, dest, False)
+    else:
+        dest = [destination[0], destination[1]]
+        node_dest= get_nearest_node(igraph, dest, False)
 
     return ox.shortest_path(igraph, node_ori, node_dest, weight='itime')
 
@@ -296,29 +305,30 @@ def plot_path(igraph, ipath, SIZE):
     iplot = []
     for i in range (len(ipath)):
         iplot.append ((igraph.nodes[ipath[i]]['x'], igraph.nodes[ipath[i]]['y']))
-    m = StaticMap (SIZE, SIZE) #test values
+    m = StaticMap (SIZE, SIZE)
     line = Line(iplot, 'red', 2)
     m.add_line(line)
-    #saving the image
+    #save the image
     image = m.render()
     image.save("your_path.png")
 
 
 def make_path(origin, destination, i_graph):
-    '''Gets fastest path between two adesses and saves it into a png image using the functions seen above.'''
+    '''Gets fastest path between two adresses and saves it into a png image using the functions seen above.'''
 
     ipath = get_shortest_path_with_itime(i_graph, origin, destination)
     plot_path(i_graph, ipath, SIZE)
 
 def prepare_i_graph():
-    '''Prepares the intelligent graph for work, if necessary it downloads and saves else it loads and then gets and applys
+    '''Prepares the intelligent graph for work. If necessary, it downloads and saves; else, it loads and then gets and applys
     highways and congestions data to build the intelligent graph with the itime value which it returns.'''
+
     if not exists_graph(GRAPH_FILENAME) or not exists_graph(PLOT_GRAPH_FILENAME):
         graph, di_graph = download_graph(PLACE) #downloads both graph and digraph formats
         save_graph(di_graph, GRAPH_FILENAME)
     else:
         di_graph = load_graph(GRAPH_FILENAME)
-        graph= load_graph(PLOT_GRAPH_FILENAME)
+        graph = load_graph(PLOT_GRAPH_FILENAME)
     #downloads and plots into png the highways
     highways, n = download_highways(HIGHWAYS_URL) #n is the biggest way_id of the highways
     #downloads and plots into a png the congestions
