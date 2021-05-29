@@ -80,4 +80,4 @@ Working on iGo was very interesting as it was our first time managing a team pro
 
 ---
   
-*developed by Pol Puigdemont and Jan Sallent, Data Science and Engineering students from UPC, 2021*
+*developed by Pol Puigdemont and Jan Sallent, Data Science and Engineering students at UPC, 2021*
