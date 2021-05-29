@@ -324,7 +324,6 @@ def prepare_i_graph():
     #downloads and plots into a png the congestions
     congestions, avg = download_congestions(CONGESTIONS_URL, n)
     #builds the intelligent graph
-    print(avg)
     i_graph = build_i_graph(di_graph, highways,congestions, avg, INFINIT)
 
     return i_graph

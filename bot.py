@@ -7,39 +7,38 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from staticmap import StaticMap, CircleMarker
 
 TOKEN = open('token.txt').read().strip() #constant which uses telegram to recognize the bot
-INFINITY = 999999
 
-# Keys of the dictionary necessary to store our igraph and the time in the map context.user_data
+# Keys of the dictionary necessary to store igraph and the time in the dictionary graph_info
 key_time = random.randint(1000000, 9999999)
 key_graph = random.randint(1000000, 9999999)
 
-#i_graph and the time when it has been made is stored in a dictionary
+#i_graph and the time when it has been made are stored in a dictionary called graph_info
 graph_info = {
         key_graph : i_go.prepare_i_graph(),
         key_time : datetime.now()
     }
 
-# Sends a message introducing the bot
 def start(update, context):
+    '''Sends a message introducing the bot.'''
     context.bot.send_message(chat_id=update.effective_chat.id, text="Hi! I am the iGo bot. Type the command you desire. If you don't know which commands to use, write /help in the chat and I'll give you some possible instructions")
 
-# Returns the text necessary for the function help
 def text_help():
+    '''Returns the text necessary for the function help.'''
     help = "By writing /author you will obtain the names of the authors of the bot.\n \n"
     help += "By writing /go destination (for example: /go Sagrada Família) a map indicating the fastest route from your current position to Sagrada Família will be shown)\n \n"
     help += "By writing /where you will obtain an image with your current position indicated"
     return help
 
-# Sends a message with all the possible commands
 def help (update, context):
+    '''Sends a message with all the possible commands.'''
     context.bot.send_message(chat_id=update.effective_chat.id, text=text_help())
 
-# Sends a message with the name of the authors of the bot
 def author (update, context):
+    '''Sends a message with the name of the authors of the bot.'''
     context.bot.send_message(chat_id=update.effective_chat.id, text= "Made by Pol Puigdemont Plana and Jan Sallent Bayà")
 
-# Stores the location of the user
 def your_location (update, context):
+    '''Stores the location of the user.'''
     #stores in a map the location of the user using the id of the user as the key
     try:
         key = update.effective_chat.id
@@ -47,9 +46,10 @@ def your_location (update, context):
     except:
         context.bot.send_message(chat_id=update.effective_chat.id, text="Your location wasn't shared succesfully")
 
-# Stores the location of a user without sharing the location
-# Precondition: if the location is send in coordinates, first parameter must be the latitude and the second one must be longitude
+
 def pos (update, context):
+    '''Stores the location of a user without sharing the location
+    Precondition: if the location is send in coordinates, first parameter must be the latitude and the second one must be longitude.'''
     try:
         origin = [float(context.args [1]), float(context.args [0])]
         #latitude and longitude are changed because in i_go module, longitude is the first parameter and latitude is the second one
@@ -65,9 +65,9 @@ def pos (update, context):
     key = update.effective_chat.id
     context.user_data[key] = origin
 
-# Sends a photo of the location of the user
-# Precondition: location has to be send previously or function /pos has to be used
 def where (update, context):
+    '''Sends a photo of the location of the user
+    Precondition: location has to be send previously or function /pos has to be used.'''
     key = update.effective_chat.id #we use the id of the user as the key of the map
     try:
         location = context.user_data [key]
@@ -86,16 +86,20 @@ def where (update, context):
     except:
         context.bot.send_message(chat_id=update.effective_chat.id, text = "Your location must be sent")
 
-# Sends a photo showing the path user must follow to go to current location to destination
 def go (update, context):
+    '''Sends a photo showing the shortest path.
+    Precondition: location has to be send previously or function /pos has to be used.'''
     try:
         key = update.effective_chat.id
         origin = context.user_data [key]
         new_time = datetime.now()
-        if new_time - graph_info [key_time] < timedelta (minutes = 5):
+
+        #if more than 5 minutes have been passed since congestions were added, we need to remake the graph and add new congestions
+        if new_time - graph_info [key_time] > timedelta (minutes = 5):
             context.bot.send_message(chat_id=update.effective_chat.id, text="Recalculating congestions, please wait a few seconds")
             graph_info[key_time] = datetime.now()
             graph_info[key_graph] = i_go.prepare_i_graph()
+
         destination = context.args [0]
         for i in range (1, len(context.args)):
             destination += ' '
@@ -108,8 +112,7 @@ def go (update, context):
         os.remove(fitxer)
         #photo is made, send, and then removed
 
-    except Exception as e:
-        print (e)
+    except:
         context.bot.send_message(chat_id=update.effective_chat.id, text = "Your location must be sent")
 
 
