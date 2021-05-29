@@ -78,5 +78,6 @@ To get a deeper insight of our thought process and how the code works check the 
  
 Working on iGo was very interesting as it was our first time managing a team project of this magnitude, we tried our best to make a sensible implementation.  
 
+---
   
 *developed by Pol Puigdemont and Jan Sallent, Data Science and Engineering students from UPC, 2021*
