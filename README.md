@@ -45,7 +45,7 @@ Now you can start chatting with the bot, type */start* in the chat and the bot w
 * /go <destination> -> shows a map with the fastest route from your location to the indicated destination
 * /where -> shows a picture of your current location (the one you shared, this version does not have a 'real time GPS implemented')
   
-Wonderful! now that you know how to use the bot you will be the fastest.
+Wonderful! let's see a real example. 
 <br /> 
 
 `USAGE EXAMPLE:`
