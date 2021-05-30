@@ -3,7 +3,7 @@
 Be the fastest with iGO!
 <br /> 
 ## What is iGO?
-iGO is a telegram bot that allows you to reach a desired destination in the city of Barcelona in the fastest way possible by car. It does so calculating a time parameter that considers the lenght, maximum speed avaliable during the trip and real time traffic congestion. Yes, we know, quite cool 😎
+iGO is a telegram bot that allows you to reach a desired destination in the city of Barcelona in the fastest way possible by car. It does so by calculating a time parameter that considers lenght, maximum speed avaliable during the trip and real time traffic congestion for each street in the city. Yes, we know, quite cool 😎
 
 ---
 
