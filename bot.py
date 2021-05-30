@@ -23,6 +23,7 @@ graph_info = {key_graph: i_go.prepare_i_graph(), key_time: datetime.now()}
 def start(update, context):
     """Sends a message introducing the bot.
     Complexity O(1)."""
+    
     text_send = "Hi! I am the iGo bot. Type the command you desire. If you don't know which commands you can use, write /help in the chat and I'll give you some help"
     context.bot.send_message(
         chat_id=update.effective_chat.id,
