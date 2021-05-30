@@ -23,9 +23,7 @@ graph_info = {key_graph: i_go.prepare_i_graph(), key_time: datetime.now()}
 def start(update, context):
     """Sends a message introducing the bot.
     Complexity O(1)."""
-    text_send = "Hi! I am the iGo bot. Type the command you desire. If you "
-    text_send += "don't know which commands you can use, write /help in the"
-    text_send += " chat and I'll give you some help"
+    text_send = "Hi! I am the iGo bot. Type the command you desire. If you don't know which commands you can use, write /help in the chat and I'll give you some help"
     context.bot.send_message(
         chat_id=update.effective_chat.id,
         text=text_send,
@@ -37,13 +35,10 @@ def text_help():
     Complexity O(1)."""
 
     help = (
-        "By writing /author you will obtain the names of the authors "
+        "By writing /author you will obtain the names of the authors of the bot.\n \n "
     )
-    help += "of the bot.\n \nBy writing /go destination (for example:"
-    help += " /go Sagrada Família) a map indicating the fastest route "
-    help += "from your current position to Sagrada Família will be shown)\n \n"
-    help += "By writing /where you will obtain an image with your current"
-    help += " position indicated"
+    help += "By writing /go destination (for example: /go Sagrada Família) a map indicating the fastest route from your current position to Sagrada Família will be shown)\n \n"
+    help += "By writing /where you will obtain an image with your current position indicated"
     return help
 
 
@@ -88,8 +83,7 @@ def your_location(update, context):
 
 def pos(update, context):
     """Stores the location of a user without sharing the location
-    Precondition: if the location is send in coordinates,
-    first parameter must be the latitude and the second one must be longitude.
+    Precondition: if the location is send in coordinates, first parameter must be the latitude and the second one must be longitude.
     Complexity O(l), l being the lenght of context.args list."""
 
     try:
@@ -113,8 +107,7 @@ def pos(update, context):
 
 def where(update, context):
     """Sends a photo of the location of the user
-    Precondition: location has to be send previously
-    or function /pos has to be used.
+    Precondition: location has to be send previously or function /pos has to be used.
     Complexity O(1)."""
 
     key = update.effective_chat.id  # we use the user id as the key of the map
@@ -142,8 +135,7 @@ def where(update, context):
 
 def go(update, context):
     """Sends a photo showing the shortest path.
-    Precondition: location has to be send previously
-    or function /pos has to be used.
+    Precondition: location has to be send previously or function /pos has to be used.
     Complexity of the shortest_path osmnx function."""
 
     try:
@@ -154,8 +146,7 @@ def go(update, context):
         # if more than 5 minutes have been passed since congestions were added,
         # we need to remake the graph and add new congestions
         if new_time - graph_info[key_time] > timedelta(minutes=5):
-            text_send = "Your graph data needs an update, recalculating "
-            text_send += " congestions, please wait a few seconds"
+            text_send = "Your graph data needs an update, recalculating congestions, please wait a few seconds"
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text=text_send,
