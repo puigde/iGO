@@ -43,7 +43,8 @@ Now you can start chatting with the bot, type */start* in the chat and the bot w
 * /author -> gets the names of the authors of the bot
 * /go <destination> -> shows a map image with the fastest route from your location to the indicated destination
 * /where -> shows a picture of your current location (the one you shared, this version does not have a 'real time GPS implemented')
-  
+
+<br /> 
 Wonderful! 🌠 let's see a real example. 
 <br /> 
 
