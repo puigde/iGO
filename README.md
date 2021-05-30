@@ -47,6 +47,7 @@ Now you can start chatting with the bot, type */start* in the chat and the bot w
 Wonderful! 🌠 let's see a real example. 
 <br /> 
 
+  
 `USAGE EXAMPLE:`
   <br /> 
 <img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial1.png" width=40% height=40%>
@@ -62,7 +63,6 @@ Easy, isn't it? you are ready to go! 🚙
   
 ---  
 <br /> 
-  
   
 ## Help with installation, some references:
 
