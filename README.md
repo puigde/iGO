@@ -61,9 +61,8 @@ Easy, isn't it? you are ready to go! 🚙
 * /traffic -> shows a map image with the current traffic situation using color references indicated by a posterior message.
   
 ---
-  <br /> 
 ## Help with installation, some references:
-
+  
 * Previous to Osmnx:
   In Ubuntu, previosly type `sudo apt install libspatialindex-dev`. In Mac, type `brew install spatialindex gdal` and get the
   latest versions of the installators.
