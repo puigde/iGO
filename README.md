@@ -37,11 +37,11 @@ python3 bot.py
 Now you can start chatting with the bot, type */start* in the chat and the bot will present itself and offer you some help on usage in case you need it. To enable route generation you might want to share your location with the bot so it knows where you are, you can do so with the share location feature that the telegram app has. <br /> 
 
 
-`CURRENT BOT FEATURES:`
+`CURRENT BASE BOT FEATURES:`
 * /start -> initiates the conversation
 * /help -> gets help
 * /author -> gets the names of the authors of the bot
-* /go <destination> -> shows a map with the fastest route from your location to the indicated destination
+* /go <destination> -> shows a map image with the fastest route from your location to the indicated destination
 * /where -> shows a picture of your current location (the one you shared, this version does not have a 'real time GPS implemented')
   
 Wonderful! let's see a real example. 
@@ -56,7 +56,10 @@ Wonderful! let's see a real example.
 Easy, isn't it? you are ready to go! 🚙 
 
 ---
+ `LATEST UPDATE, NEW TRAFFIC FEATURE!`
+* /traffic -> shows a map image with the current traffic situation using color references indicated by a posterior message.
   
+---  
 ## Help with installation, some references:
 
 * Previous to Osmnx:
