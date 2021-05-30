@@ -43,24 +43,25 @@ Now you can start chatting with the bot, type */start* in the chat and the bot w
 * /author -> gets the names of the authors of the bot
 * /go <destination> -> shows a map image with the fastest route from your location to the indicated destination
 * /where -> shows a picture of your current location (the one you shared, this version does not have a 'real time GPS implemented')
-
-Wonderful! 🌠 let's see a real example.
+  
+Wonderful! 🌠 let's see a real example. 
 <br /> 
 
-<img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial1.png" width=35% height=35%>
-<img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial2.png" width=35% height=35%>
+`USAGE EXAMPLE:`
+  <br /> 
+<img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial1.png" width=40% height=40%>
+<img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial2.png" width=40% height=40%>
 
 
 Easy, isn't it? you are ready to go! 🚙 
-<br /> 
+
   
 ---
  *LATEST UPDATE❗ NEW TRAFFIC FEATURE!*
 * /traffic -> shows a map image with the current traffic situation using color references indicated by a posterior message.
   
----  
-<br /> 
-  
+---
+  <br /> 
 ## Help with installation, some references:
 
 * Previous to Osmnx:
