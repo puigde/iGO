@@ -55,12 +55,15 @@ Wonderful! 🌠 let's see a real example.
 
 Easy, isn't it? you are ready to go! 🚙 
 <br /> 
+  
 ---
  *LATEST UPDATE❗ NEW TRAFFIC FEATURE!*
 * /traffic -> shows a map image with the current traffic situation using color references indicated by a posterior message.
   
 ---  
-  <br /> 
+<br /> 
+  
+  
 ## Help with installation, some references:
 
 * Previous to Osmnx:
