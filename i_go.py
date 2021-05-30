@@ -88,6 +88,7 @@ def plot_graph(graph, onscreen=False):
 def adjust_coordinates(highways):
     """Adjusts coordinates format for each highway in the recieved list from a string to pairs of float values.
     Complexity O(h), h being the lenght of the list of highways."""
+    
     for highway in highways:
         highway[1] = highway[1].split(",")
         i = 0
@@ -168,7 +169,7 @@ def plot_congestions(highways, congestions, filename, SIZE):
     """Saves a png image of a colored representation of the traffic congestions in the Barcelona map. It recieves the lists
     with the data of the highways and congestions and the filename and size for the image. colors correspondece : grey = no data,
     blue = very fluid, green = fluid, yellow = heavy, orange = very heavy, red = traffic jam, black = blocked.
-    Complexity O(h) h being the lenght of the highways list."""
+    Complexity O(h) h being the length of the highways list."""
 
     m = StaticMap(SIZE, SIZE)
     for highway in highways:
@@ -239,6 +240,7 @@ def build_i_graph(graph, highways, congestions, avg, INFINIT, ARBITRARY):
     have data for in the dataset and finally our INFINITY parameter.
     Complexity O(h*l*p) h being the highways list lenght l being the lenght of the list of coordinates in a highway tuple and p being the lenght of
     of the list of nodes generated when computing shortest paths."""
+    
     nx.set_edge_attributes(
         graph, int(round(avg)), name="congestion"
     )  # add a parameter for edges with our avg. value
@@ -362,6 +364,7 @@ def make_path(origin, destination, i_graph):
     """Gets fastest path between two adresses and saves it into a png image using the functions seen above. It includes error handling
     because the graph is not connex.
     Complexity of the shortest path with itime."""
+    
     ipath = get_shortest_path_with_itime(i_graph, origin, destination)
     if ipath == "error":
         return -1
