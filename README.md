@@ -32,7 +32,7 @@ python3 bot.py
 
 `NOTE:`if you are the first user executing the code you might need to wait a few seconds or even a minute if your computer is slower to let the bot get and arrange the data.
 
-`NOTE:` every 5 minutes traffic congestion data is updated, if you request a route but global data is old you might need to wait a few seconds again.
+`NOTE:` every 5 minutes traffic congestion data is updated, if you request a route but global data is old you might need to wait around a minute again 😄.
 
 Now you can start chatting with the bot, type */start* in the chat and the bot will present itself and offer you some help on usage in case you need it. To enable route generation you might want to share your location with the bot so it knows where you are, you can do so with the share location feature that the telegram app has. <br /> 
 
