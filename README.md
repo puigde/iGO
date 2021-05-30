@@ -56,7 +56,7 @@ Wonderful! let's see a real example.
 Easy, isn't it? you are ready to go! 🚙 
 
 ---
- `LATEST UPDATE, NEW TRAFFIC FEATURE!`
+ *LATEST UPDATE, NEW TRAFFIC FEATURE!*
 * /traffic -> shows a map image with the current traffic situation using color references indicated by a posterior message.
   
 ---  
