@@ -44,7 +44,7 @@ Now you can start chatting with the bot, type */start* in the chat and the bot w
 * /go <destination> -> shows a map image with the fastest route from your location to the indicated destination
 * /where -> shows a picture of your current location (the one you shared, this version does not have a 'real time GPS implemented')
   
-Wonderful! let's see a real example. 
+Wonderful! 🌠 let's see a real example. 
 <br /> 
 
 `USAGE EXAMPLE:`
@@ -54,12 +54,13 @@ Wonderful! let's see a real example.
 
 
 Easy, isn't it? you are ready to go! 🚙 
-
+<br /> 
 ---
- *LATEST UPDATE, NEW TRAFFIC FEATURE!*
+ *LATEST UPDATE❗ NEW TRAFFIC FEATURE!*
 * /traffic -> shows a map image with the current traffic situation using color references indicated by a posterior message.
   
 ---  
+  <br /> 
 ## Help with installation, some references:
 
 * Previous to Osmnx:
