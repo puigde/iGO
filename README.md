@@ -32,8 +32,7 @@ python3 bot.py
 
 `NOTE:`if you are the first user executing the code you might need to wait a few seconds or even a minute if your computer is slower to let the bot get and arrange the data.
 
-`NOTE:`every five minutes an update is done on the data that the bot is using so if your data got 'old' you might need to wait a few seconds too. 
-
+`NOTE:` every 5 minutes traffic congestion data is updated, if you request a route but global data is old you might need to wait a few seconds again.
 
 Now you can start chatting with the bot, type */start* in the chat and the bot will present itself and offer you some help on usage in case you need it. To enable route generation you might want to share your location with the bot so it knows where you are, you can do so with the share location feature that the telegram app has. <br /> 
 
@@ -54,14 +53,24 @@ Wonderful! let's see a real example.
 <img src="https://github.com/puigde/ap2-igo/blob/be052f0b70ede1b0d7a02e727158c3380a5525f0/tutorial2.png" width=40% height=40%>
 
 
-Congratulations, you are ready to go! 🚙 
+Easy, isn't it? you are ready to go! 🚙 
 
 ---
   
 ## Help with installation, some references:
+
+* Previous to Osmnx:
+  In Ubuntu, previosly type `sudo apt install libspatialindex-dev`. In Mac, type `brew install spatialindex gdal` and get the
+  latest versions of the installators.
+
+1. `pip3 install --upgrade pip setuptools wheel`
+2. `pip3 install --upgrade osmnx`
+3. `pip3 install --upgrade staticmap`
+
 * [Osmnx installation](https://github.com/gboeing/osmnx)
 * [NetworkX installation](https://networkx.org/documentation/stable/install.html)
 * [Pandas](https://pandas.pydata.org/pandas-docs/stable/getting_started/install.html)
+
 
 ---
 ## Development overview:
