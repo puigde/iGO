@@ -181,13 +181,14 @@ def go(update, context):
             chat_id=update.effective_chat.id, text="location error, remember your location must be sent"
         )
 
+
 def traffic(update, context):
     i_go.show_traffic()
-    fitxer='congestions.png'
+    fitxer = 'congestions.png'
     context.bot.send_photo(
             chat_id=update.effective_chat.id,
             photo=open(fitxer, 'rb'))
-    #to avoid making a huge codeline we append the message separately
+    # to avoid making a huge codeline we append the message separately
     correspondancecolors = "colors correspondece : grey = no data, blue = very fluid, green = fluid,"
     correspondancecolors += "yellow = heavy, orange = very heavy, red = traffic jam, black = blocked."
     context.bot.send_message(chat_id=update.effective_chat.id, text=correspondancecolors)
