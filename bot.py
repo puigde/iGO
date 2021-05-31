@@ -86,7 +86,7 @@ def your_location(update, context):
 def pos(update, context):
     """Stores the location of a user without sharing the location
     Precondition: if the location is send in coordinates, first parameter must be the latitude and the second one must be longitude.
-    Complexity O(l), l being the lenght of context.args list."""
+    Complexity O(l), l being the length of context.args list."""
 
     try:
         origin = [float(context.args[1]), float(context.args[0])]
@@ -178,7 +178,7 @@ def go(update, context):
             # photo is made, send, and then removed
     except:
         context.bot.send_message(
-            chat_id=update.effective_chat.id, text="Your location must be sent"
+            chat_id=update.effective_chat.id, text="location error, remember your location must be sent"
         )
         
 def traffic(update, context):
