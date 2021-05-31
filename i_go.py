@@ -401,6 +401,6 @@ def prepare_i_graph():
 def show_traffic():
     '''Gets necessary data and plots current traffic congestion into a png image.
     Complexity O(n) n being the size of both highways and congestions lists. '''
-    highways, n = download_highways(HIGHWAYS_URL)  #n is the biggest way_id of the highways
+    highways, n = download_highways(HIGHWAYS_URL)  # n is the biggest way_id of the highways
     congestions, avg = download_congestions(CONGESTIONS_URL, n)
     plot_congestions(highways, congestions, 'congestions.png', SIZE)
