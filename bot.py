@@ -40,7 +40,7 @@ def text_help():
     )
     help += "By writing /go destination (for example: /go Sagrada Família) a map indicating the fastest route from your current position to Sagrada Família will be shown).\n \n"
     help += "By writing /where you will obtain an image with your current position indicated. \n \n"
-    help+= "By writing /traffic you will obtain an image of the current traffic in Barcelona."
+    help += "By writing /traffic you will obtain an image of the current traffic in Barcelona."
     return help
 
 
@@ -180,7 +180,7 @@ def go(update, context):
         context.bot.send_message(
             chat_id=update.effective_chat.id, text="location error, remember your location must be sent"
         )
-        
+
 def traffic(update, context):
     i_go.show_traffic()
     fitxer='congestions.png'
@@ -188,11 +188,10 @@ def traffic(update, context):
             chat_id=update.effective_chat.id,
             photo=open(fitxer, 'rb'))
     #to avoid making a huge codeline we append the message separately
-    correspondancecolors="colors correspondece : grey = no data, blue = very fluid, green = fluid,"
-    correspondancecolors+="yellow = heavy, orange = very heavy, red = traffic jam, black = blocked."
-    context.bot.send_message(chat_id=update.effective_chat.id, text = correspondancecolors)
+    correspondancecolors = "colors correspondece : grey = no data, blue = very fluid, green = fluid,"
+    correspondancecolors += "yellow = heavy, orange = very heavy, red = traffic jam, black = blocked."
+    context.bot.send_message(chat_id=update.effective_chat.id, text=correspondancecolors)
     os.remove(fitxer)
-
 
 
 # creates objects to work with Telegram
