@@ -38,8 +38,8 @@ def text_help():
     help = (
         "By writing /author you will obtain the names of the authors of the bot.\n \n "
     )
-    help += "By writing /go destination (for example: /go Sagrada Família) a map indicating the fastest route from your current position to Sagrada Família will be shown)\n \n"
-    help += "By writing /where you will obtain an image with your current position indicated"
+    help += "By writing /go destination (for example: /go Sagrada Família) a map indicating the fastest route from your current position to Sagrada Família will be shown).\n \n"
+    help += "By writing /where you will obtain an image with your current position indicated. \n \n"
     help+= "By writing /traffic you will obtain an image of the current traffic in Barcelona."
     return help
 
